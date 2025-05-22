@@ -15,10 +15,13 @@ tv.remote.onbuttonpressed = function (event={key:'unknown',source:{id:'',type:'u
     }
 }
 
-tv.home.onrequesttiles = async () => {
+const REQUEST_TILES = tv.home.onrequesttiles = async () => {
     const liveTVTile = tv.home.tile();
     liveTVTile.style.backgroundImage = 'url(./assets/livetv.png)';
     liveTVTile.style.backgroundSize = 'cover';
+    const hdmiInputTile = tv.home.tile();
+    hdmiInputTile.style.backgroundColor='rgba(0,200,205,100)';
+    hdmiInputTile.innerHTML = `<div style="justify-content:center;display:flex;flex-direction:column;text-align:center;width:100%;height:100%;"><p style="margin:0px;left:0px;font-size:24px;">HDMI</p></div>`
     const tiles = [
         {
             tile: liveTVTile,
@@ -26,24 +29,38 @@ tv.home.onrequesttiles = async () => {
                 tv.home.hide();
                 tv.apps.load('live-tv');
             }
+        },
+        {
+            tile: hdmiInputTile,
+            onclick: function () {
+                tv.home.hide();
+                setTimeout(() => {
+                    tv.home.onrequesttiles = async () => {
+                        const tiles = [];
+                        const devices = await navigator.mediaDevices.enumerateDevices();
+                        const audioDevices = [];
+                        devices.forEach(k => { if(k.kind==='audioinput') audioDevices.push(k.groupId) });
+                        devices.forEach(device => {
+                            if(device.kind === 'videoinput') {
+                                const tile = tv.home.tile();
+                                tile.innerHTML = `<div style="justify-content:center;display:flex;flex-direction:column;text-align:center;width:100%;height:100%;"><p style="margin:0px;left:0px;">${device.label.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</p></div>`;
+                                tiles.push({
+                                    tile: tile,
+                                    onclick: function () {
+                                        tv.home.hide();
+                                        tv.apps.load('hdmi', device.groupId);
+                                    }
+                                });
+                            }
+                        });
+                        tv.home.onrequesttiles = REQUEST_TILES;
+                        return tiles;
+                    };
+                    tv.home.show();
+                },1000);
+            }
         }
     ];
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    const audioDevices = [];
-    devices.forEach(k => { if(k.kind==='audioinput') audioDevices.push(k.groupId) });
-    devices.forEach(device => {
-        if(device.kind === 'videoinput') {
-            const tile = tv.home.tile();
-            tile.innerHTML = `<div style="justify-content:center;display:flex;flex-direction:column;text-align:center;width:100%;height:100%;"><p style="margin:0px;left:0px;">${device.label.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</p></div>`;
-            tiles.push({
-                tile: tile,
-                onclick: function () {
-                    tv.home.hide();
-                    tv.apps.load('hdmi', device.groupId);
-                }
-            });
-        }
-    });
     return tiles;
 };
 

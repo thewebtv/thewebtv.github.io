@@ -64,7 +64,7 @@ const tv = {
             tv.live.__debounce__ = setTimeout(() => {
                 tv.system.hls.loadSource(CHANNELS[tv.live.channel].feed);
                 tv.system.hls.startLoad();
-                $livevideo.play().catch(e=>onerror?onerror(e):null);
+                $livevideo.play();
             }, 1000);
         },
         __debounce__: 0
@@ -91,7 +91,11 @@ const tv = {
                     audio: {
                         groupId: id
                     }
-                }).then(stream => {tv.system.hdmi = stream, $hdmivideo.srcObject = stream, $hdmivideo.play()});
+                }).then(stream => {
+                    tv.system.hdmi = stream;
+                    $hdmivideo.srcObject = stream;
+                    $hdmivideo.play()
+                });
             }, 1000);
         },
         __debounce__: 0
@@ -119,7 +123,7 @@ const tv = {
         },
         show: async () => {
             tv.home.changing = true;
-            document.querySelector('.home').style.opacity = '0';
+            //document.querySelector('.home').style.opacity = '0';
             document.querySelector('.home').innerHTML = ''; // quick
             const tiles = await tv.home.onrequesttiles();
             tv.home.__tiles__ = tiles;
@@ -128,6 +132,8 @@ const tv = {
             });
             document.querySelector('.home').style.display = '';
             setTimeout(() => {
+                // document.querySelector('.app').style.filter = 'blur(10px)';
+                // document.querySelector('.app').style.webkitFilter = 'blur(10px)';
                 document.querySelector('.home').style.opacity = '1'
             },100);
             setTimeout(() => {
@@ -140,6 +146,8 @@ const tv = {
         hide: () => {
             tv.home.changing = true;
             document.querySelector('.home').style.opacity = '0';
+            // document.querySelector('.app').style.filter = 'blur(0px)';
+            // document.querySelector('.app').style.webkitFilter = 'blur(0px)';
             setTimeout(() => {
                 document.querySelector('.home').style.display = 'none';
                 tv.home.open = false;
