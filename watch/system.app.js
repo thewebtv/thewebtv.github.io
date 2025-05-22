@@ -29,8 +29,8 @@ const tv = {
     },
     apps: {
         show: function (id) {
-            document.querySelector(`.feature.${tv.system.app}`).style.display = 'none';
-            document.querySelector(`.feature.${id}`).style.display = '';
+            document.querySelector(`.feature.fg-${tv.system.app}`).style.display = 'none';
+            document.querySelector(`.feature.fg-${id}`).style.display = '';
         },
         load: function (id, hdmiId, bp) {
             if(id === 'hdmi' && !hdmiId) return;
@@ -215,6 +215,7 @@ const tv = {
     ui: {
         alerts: {
             queue: [],
+            active: false,
             show: function (text) {
                 const prom = new Promise(finish => {
                     tv.ui.alerts.queue.push({
@@ -227,11 +228,19 @@ const tv = {
                 }
             },
             __show__: function () {
+                this.active = true;
                 // to do
                 this.queue[0].done();
                 this.queue.shift();
                 if(this.queue.length != 0) this.__show__();
+                else this.active = false;
             }
+        },
+        settings: {
+            open: false,
+            changing: false,
+            show: () => {},
+            hide: () => {}
         }
     }
 };

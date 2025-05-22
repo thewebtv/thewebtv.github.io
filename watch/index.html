@@ -4,6 +4,7 @@
         <title>TV</title>
         <link rel='stylesheet' href='fonts.css' />
         <link rel='stylesheet' href='index.css' />
+        <link rel='stylesheet' href='apps.css' />
         <script src='microbit-link.full.js'></script>
         <script src='hls.js'></script>
         <script src='channels.js'></script>
@@ -11,14 +12,25 @@
     </head>
     <body>
         <div class='app'>
-            <div class='feature live-tv' style='display: none;'>
+            <div class='feature fg-live-tv' style='display: none;'>
                 <video id='livevideo' class='content-player'></video>
             </div>
-            <div class='feature hdmi' style='display: none;'>
+            <div class='feature fg-hdmi' style='display: none;'>
                 <video id='hdmivideo' class='content-player'></video>
             </div>
+            <div class='feature fg-iheart' style='display: none;'>
+                <div class='iheart-app'>
+                    <div class='iheart-logo-container'>
+                        <img src='./assets/iheart.png' class='iheart-logo' />
+                    </div>
+                    <div class='iheart-content'></div>
+                    <div class='iheart-console-container'>
+                        <div class='iheart-console'></div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class='home' style='display: none;'>
+        <div class='home' style='display: none; opacity: 0;'>
             <div class='tile'>
                 Live TV
             </div>
@@ -35,6 +47,7 @@
             </div>
         </div>
         <script src='./konbini.full.js'></script>
+        <script src='./iheart-api.js'></script>
         <script src='./config.app.js'></script>
         <script src='./system.app.js'></script>
         <script src='./app.js'></script>

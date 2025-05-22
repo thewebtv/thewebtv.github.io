@@ -21,7 +21,10 @@ const REQUEST_TILES = tv.home.onrequesttiles = async () => {
     liveTVTile.style.backgroundSize = 'cover';
     const hdmiInputTile = tv.home.tile();
     hdmiInputTile.style.backgroundColor='rgba(0,200,205,100)';
-    hdmiInputTile.innerHTML = `<div style="justify-content:center;display:flex;flex-direction:column;text-align:center;width:100%;height:100%;"><p style="margin:0px;left:0px;font-size:24px;">HDMI</p></div>`
+    hdmiInputTile.innerHTML = `<div style="justify-content:center;display:flex;flex-direction:column;text-align:center;width:100%;height:100%;"><p style="margin:0px;left:0px;font-size:24px;">HDMI</p></div>`;
+    const settingsAppTile = tv.home.tile();
+    settingsAppTile.style.backgroundColor='rgba(0,200,205,100)';
+    settingsAppTile.innerHTML = `<div style="justify-content:center;display:flex;flex-direction:column;text-align:center;width:100%;height:100%;"><p style="margin:0px;left:0px;font-size:24px;">Options</p></div>`;
     const tiles = [
         {
             tile: liveTVTile,
@@ -59,8 +62,38 @@ const REQUEST_TILES = tv.home.onrequesttiles = async () => {
                     tv.home.show();
                 },1000);
             }
+        },
+        {
+            tile: settingsAppTile,
+            onclick: function () {
+                tv.home.hide();
+                tv.ui.settings.show();
+            }
         }
     ];
+    [
+        {
+            asset: 'iheart.ico',
+            background: 'black',
+            id: 'iheart'
+        }
+    ].forEach(sysapp => {
+        const SysAppTile = tv.home.tile();
+        if(sysapp.background) {
+            SysAppTile.style.backgroundColor = sysapp.background;
+        }
+        SysAppTile.style.backgroundImage = `url(./assets/${sysapp.asset}.png)`;
+        SysAppTile.style.backgroundSize = 'contain';
+        SysAppTile.style.backgroundRepeat = 'no-repeat';
+        SysAppTile.style.backgroundPosition =  'center';
+        tiles.push({
+            tile: SysAppTile,
+            onclick: function () {
+                tv.home.hide();
+                tv.apps.load(sysapp.id);
+            }
+        });
+    });
     return tiles;
 };
 
