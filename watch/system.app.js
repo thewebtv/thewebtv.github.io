@@ -74,6 +74,7 @@ const tv = {
         stop: function () {
             if(!(tv.system.hdmi instanceof MediaStream)) return;
             $hdmivideo.pause();
+            $hdmivideo.srcObject = null;
             tv.system.hdmi.getTracks().forEach(track => track.stop());
         },
         start: function (id) {
@@ -90,7 +91,7 @@ const tv = {
                     audio: {
                         groupId: id
                     }
-                }).then(stream => $hdmivideo.srcObject = stream, $hdmivideo.play());
+                }).then(stream => tv.system.hdmi = stream, $hdmivideo.srcObject = stream, $hdmivideo.play());
             }, 1000);
         },
         __debounce__: 0
