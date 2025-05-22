@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>TV</title>
+        <link rel='stylesheet' href='fonts.css' />
+        <link rel='stylesheet' href='index.css' />
+        <script src='microbit-link.full.js'></script>
+        <script src='hls.js'></script>
+        <script src='channels.js'></script>
+        <script>onerror=alert</script>
+    </head>
+    <body>
+        <div class='app'>
+            <div class='feature live-tv' style='display: none;'>
+                <video id='livevideo' class='content-player'></video>
+            </div>
+            <div class='feature hdmi' style='display: none;'>
+                <video id='hdmivideo' class='content-player'></video>
+            </div>
+        </div>
+        <div class='home' style='display: none;'>
+            <div class='tile'>
+                Live TV
+            </div>
+            <div class='tile'>
+                HDMI
+            </div>
+        </div>
+        <div id='volumeui' class='volume-ui' style='display: none;'>
+            <div id='volumeuilevel' class='volume-level'>
+                <div id='volumeuiprogress' class='volume-progress' style='width:30%;'></div>
+            </div>
+            <div id='volumeuimuted' class='volume-muted'>
+                <p>Muted</p>
+            </div>
+        </div>
+        <script src='./konbini.full.js'></script>
+        <script src='./config.app.js'></script>
+        <script src='./system.app.js'></script>
+        <script src='./app.js'></script>
+        <script src='./click-handler.js'></script>
+    </body>
+</html>
