@@ -91,7 +91,7 @@ const tv = {
                     audio: {
                         groupId: id
                     }
-                }).then(stream => tv.system.hdmi = stream, $hdmivideo.srcObject = stream, $hdmivideo.play());
+                }).then(stream => {tv.system.hdmi = stream, $hdmivideo.srcObject = stream, $hdmivideo.play()});
             }, 1000);
         },
         __debounce__: 0
@@ -129,7 +129,7 @@ const tv = {
             document.querySelector('.home').style.display = '';
             setTimeout(() => {
                 document.querySelector('.home').style.opacity = '1'
-            },10);
+            },100);
             setTimeout(() => {
                 tv.home.focusTile(0);
                 tv.home.open = true;
