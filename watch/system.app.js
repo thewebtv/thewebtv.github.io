@@ -262,8 +262,10 @@ const tv = {
             const { hits } = await tv.iheart.getAllStations();
             clearTimeout(tv.iheart.__debounce__);
             tv.iheart.__debounce__ = setTimeout(() => {
+                const hit = hits[Math.floor(Math.random()*hits.length)].streams.hls_stream
+                if(!hit) return;
                 tv.iheart.hls.loadSource(
-                    hits[Math.floor(Math.random()*hits.length)].streams.hls_stream
+                    hit.replaceAll('http://', 'https://')
                 );
                 tv.iheart.hls.startLoad();
                 $iheartvideo.play();
