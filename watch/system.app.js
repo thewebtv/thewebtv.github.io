@@ -263,7 +263,7 @@ const tv = {
             clearTimeout(tv.iheart.__debounce__);
             tv.iheart.__debounce__ = setTimeout(() => {
                 const hit = hits[Math.floor(Math.random()*hits.length)];
-                if(!hit.secure_hls_stream) return;
+                if(!hit.streams.secure_hls_stream) return;
                 tv.iheart.hls.loadSource(
                     hit.streams.secure_hls_stream
                 );
