@@ -37,5 +37,82 @@
     background-color: rgb(24, 24, 24);
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     border-radius: 50px;
+}
+
+.iheart-console-meta {
+    width: calc(100% - 364px);
+    display: flex;
+    flex-direction: row;
+    height: 48px;
+    justify-content: space-between;
+}
+
+.iheart-console-meta-text {
+    width: calc(100% - 48px - 32px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.iheart-console-meta-text p {
+    margin: 0px;
+    padding: 0px;
+}
+
+.iheart-console-img {
+    width: 48px;
+    height: 48px;
+    background-color: rgb(89, 89, 89);
+    border-radius: 15px;
+}
+
+.iheart-console-meta-title {
+    font-size: 24px;
+}
+
+.iheart-console-meta-channel {
+    font-size: 9px;
+}
+
+.iheart-console-meta-artist {
+    font-size: 15px;
+}
+
+.iheart-console-controls {
+    width: 300px;
+    height: 48px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.iheart-console-controls div {
+    padding: 16px;
+    width: 32px;
+    height: 32px;
+    transition: 300ms;
+    border-radius: 50%;
+    position: relative;
+    bottom: 8px;
+}
+
+.iheart-console-controls svg {
+    height: 32px;
+    width: 32px;
+}
+
+.iheart-console-controls svg * {
+    fill: white;
+    transition: 300ms
+}
+
+.iheart-console-active-control {
+    transform: scale(1.5);
+    background-color: white;
+}
+
+.iheart-console-active-control svg * {
+    fill: black;
 }
