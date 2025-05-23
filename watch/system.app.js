@@ -65,17 +65,11 @@ const tv = {
             tv.system.app = id;
             tv.hdmi.stop();
             if(id === 'live-tv') {
-                tv.iheart.stop();
                 tv.live.start();
             } else if(id === 'hdmi') {
                 tv.live.stop();
-                tv.iheart.stop();
                 tv.hdmi.start(hdmiId);
-            } else if(id === 'iheart') {
-                tv.live.stop();
-                tv.hdmi.stop();
-                tv.iheart.start();
-            } else {
+            }else {
                 tv.live.stop();
                 // TO DO: Handle third-party apps
             }
@@ -193,6 +187,8 @@ const tv = {
             },100);
             setTimeout(() => {
                 tv.home.focusTile(0);
+            }, 220);
+            setTimeout(() => {
                 tv.home.open = true;
                 tv.home.changing = false;
             }, 500);
@@ -298,122 +294,10 @@ const tv = {
             hide: () => {}
         }
     },
-    iheart: {
-        hls: Hls.isSupported() ? new Hls() : null,
-        requestLocation: async () => {
-            // TODO: Add location permission dialog
-            return false;
-        },
-        /**
-         * 
-         * @returns {number|null}
-         */
-        getRegion: async () => {
-            if(!localStorage.getItem('tv.iheart.location')) {
-                localStorage.setItem(
-                    'tv.iheart.location',
-                    await tv.iheart.requestLocation()
-                );
-            }
-            if(localStorage.getItem('tv.iheart.location') === 'false') return null;
-            try {
-                /**
-                 * @type {{coords:GeolocationCoordinates}}
-                 */
-                const geodata = await tv.geo.get();
-                const long = Math.round(geodata.coords.longitude);
-                const lat = Math.round(geodata.coords.latitude);
-                /**
-                 * @type {{hits:[]}}
-                 */
-                const resp = await (await fetch(`https://api.iheart.com/api/v2/content/markets?lat=${lat}&lng=${long}&limit=100&cache=true`)).json();
-                return resp.hits[0] ? resp.hits[0].marketId : null;
-            } catch (error) {
-                return null;
-            }
-        },
-        getAllStations: async (forceUSOnly) => {
-            const region = forceUSOnly ? null : await tv.iheart.getRegion();
-            if(typeof region === 'number') {
-                return await (await fetch(`https://api.iheart.com/api/v2/content/liveStations?limit=99999&marketId=${region}`)).json();
-            } else {
-                return await (await fetch('https://api.iheart.com/api/v2/content/liveStations?countryCode=US&limit=99999')).json();
-            }
-        },
-        getLiveStations: async ({ limit, marketId, countryCode, genre }) => {},
-        /**
-         * 
-         * @param {{
-         *  marketId?: number,
-         *  keyword: string,
-         * countryCode?: string
-         * }} param0 
-         * @returns {Promise<{
-         *  "results": {
-         *      callLetters: string,
-         *      score: number,
-         *      imageUrl: string,
-         *      name: string,
-         *      genre: "Alternative"|"Christian"|"Classic Rock"|"Classical"|"Country"|"Hip Hop"|"Jazz & Blues"|"News & Talk"|"Oldies"|string,
-         *      id: number,
-         *      normRank: number,
-         *      frequency: string
-         * }[],
-         *  "bestMatch": {
-         *      callLetters: string,
-         *      score: number,
-         *      imageUrl: string,
-         *      name: string,
-         *      genre: "Alternative"|"Christian"|"Classic Rock"|"Classical"|"Country"|"Hip Hop"|"Jazz & Blues"|"News & Talk"|"Oldies"|string,
-         *      id: number,
-         *      normRank: number,
-         *      frequency: string
-         * }
-         * }>}
-         */
-        getSearchResults: async ({
-            marketId,
-            keyword,
-            countryCode
-        }) => {
-            return await (
-                await fetch(`https://us.api.iheart.com/api/v3/search/combined?${
-                    typeof marketId === 'number' ? 'boostMarketId='+marketId+'&' : null
-                }bundle=false&keyword=true&keywords=${encodeURIComponent(keyword)}${
-                    countryCode ? '&countryCode='+countryCode : ''
-                }&artist=false&playlist=false&station=true&podcast=false&track=false`)
-            ).json();
-        },
-        stop: function () {
-            if(!tv.iheart.hls) return;
-            $iheartvideo.pause();
-            tv.iheart.hls.stopLoad();
-        },
-        start: async function () {
-            tv.iheart.stop(); // stop existing things
-            const { hits } = await tv.iheart.getAllStations();
-            clearTimeout(tv.iheart.__debounce__);
-            tv.iheart.__debounce__ = setTimeout(() => {
-                const hit = hits[Math.floor(Math.random()*hits.length)];
-                if(!hit.streams.secure_hls_stream) return;
-                tv.iheart.hls.loadSource(
-                    hit.streams.secure_hls_stream
-                );
-                document.querySelector('.iheart-content').innerHTML = `<h1>${hit.name}</h1><p>picked randomly for nobody's conviencei</p>`;
-                tv.iheart.hls.startLoad();
-                $iheartvideo.play();
-            }, 1000);
-        },
-        __debounce__: 0
-    },
     geo: {
         get: () => new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject))
     }
 };
-
-if(tv.iheart.hls) {
-    tv.iheart.hls.attachMedia($iheartvideo);
-}
 
 window.onkeydown = function(event) {
     if(event.keyCode === 87 || event.keyCode === 38) {

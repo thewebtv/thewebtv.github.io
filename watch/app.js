@@ -11,7 +11,7 @@ tv.remote.onbuttonpressed = function (event={key:'unknown',source:{id:'',type:'u
     if(tv.home.open) {
         onbuttonpressedonhome(event.key);
     } else {
-        onbuttonpressed(event.key)
+        onbuttonpressed(event);
     }
 }
 
@@ -71,13 +71,7 @@ const REQUEST_TILES = tv.home.onrequesttiles = async () => {
             }
         }
     ];
-    [
-        {
-            asset: 'iheart.ico',
-            background: 'black',
-            id: 'iheart'
-        }
-    ].forEach(sysapp => {
+    [].forEach(sysapp => {
         const SysAppTile = tv.home.tile();
         if(sysapp.background) {
             SysAppTile.style.backgroundColor = sysapp.background;
@@ -97,25 +91,23 @@ const REQUEST_TILES = tv.home.onrequesttiles = async () => {
     return tiles;
 };
 
-const onbuttonpressed = (key) => {
+const onbuttonpressed = (event) => {
     if(tv.system.app === 'live-tv') {
-        if(key === 'up') {
+        if(event.key === 'up') {
             if(tv.live.channel === CHANNELS.length - 1) {
                 tv.live.start(0);
             } else {
                 tv.live.start(tv.live.channel + 1);
             }
-        } else if(key === 'down') {
+        } else if(event.key === 'down') {
             if(tv.live.channel === 0) {
                 tv.live.start(CHANNELS.length - 1);
             } else {
                 tv.live.start(tv.live.channel - 1);
             }
         }
-    } else if(tv.system.app === 'iheart') {
-        if(key === 'ok') {
-            tv.iheart.start();
-        }
+    } else {
+        tv.apps.dispatchKey(event);
     }
 };
 
