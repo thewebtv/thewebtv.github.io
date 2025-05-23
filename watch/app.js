@@ -112,6 +112,10 @@ const onbuttonpressed = (key) => {
                 tv.live.start(tv.live.channel - 1);
             }
         }
+    } else if(tv.system.app === 'iheart') {
+        if(key === 'ok') {
+            tv.iheart.start();
+        }
     }
 };
 
