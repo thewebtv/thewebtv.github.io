@@ -282,9 +282,9 @@ const tv = {
         getAllStations: async (forceUSOnly) => {
             const region = forceUSOnly ? null : await tv.iheart.getRegion();
             if(typeof region === 'number') {
-                return await (await fetch('https://api.iheart.com/api/v2/content/liveStations?countryCode=US&limit=99999')).json();
-            } else {
                 return await (await fetch(`https://api.iheart.com/api/v2/content/liveStations?limit=99999&marketId=${region}`)).json();
+            } else {
+                return await (await fetch('https://api.iheart.com/api/v2/content/liveStations?countryCode=US&limit=99999')).json();
             }
         },
         stop: function () {
@@ -294,9 +294,7 @@ const tv = {
         },
         start: async function () {
             tv.iheart.stop(); // stop existing things
-            const response = await tv.iheart.getAllStations();
-            console.log(response);
-            const { hits } = response;
+            const { hits } = await tv.iheart.getAllStations();
             clearTimeout(tv.iheart.__debounce__);
             tv.iheart.__debounce__ = setTimeout(() => {
                 const hit = hits[Math.floor(Math.random()*hits.length)];
