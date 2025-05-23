@@ -49,7 +49,7 @@ const tv = {
             } else if(id === 'iheart') {
                 tv.live.stop();
                 tv.hdmi.stop();
-                tv.iheart.stop();
+                tv.iheart.start();
             } else {
                 tv.live.stop();
                 // TO DO: Handle third-party apps
@@ -262,11 +262,12 @@ const tv = {
             const { hits } = await tv.iheart.getAllStations();
             clearTimeout(tv.iheart.__debounce__);
             tv.iheart.__debounce__ = setTimeout(() => {
-                const hit = hits[Math.floor(Math.random()*hits.length)].streams.hls_stream
-                if(!hit) return;
+                const hit = hits[Math.floor(Math.random()*hits.length)];
+                if(!hit.secure_hls_stream) return;
                 tv.iheart.hls.loadSource(
-                    hit.replaceAll('http://', 'https://')
+                    hit.streams.secure_hls_stream
                 );
+                document.querySelector('.iheart-content').innerHTML = `<h1>${hit.name}</h1><p>picked randomly for nobody's conviencei</p>`;
                 tv.iheart.hls.startLoad();
                 $iheartvideo.play();
             }, 1000);
