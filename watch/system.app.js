@@ -251,7 +251,7 @@ const tv = {
     },
     iheart: {
         hls: Hls.isSupported() ? new Hls() : null,
-        getAllStations: async () => await (await fetch('https://api.iheart.com/api/v2/content/liveStations/')).json(),
+        getAllStations: async () => await (await fetch('https://api.iheart.com/api/v2/content/liveStations?countryCode=US&limit=99999')).json(),
         stop: function () {
             if(!tv.iheart.hls) return;
             $iheartvideo.pause();
