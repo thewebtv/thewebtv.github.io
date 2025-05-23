@@ -268,8 +268,8 @@ const tv = {
                  * @type {{coords:GeolocationCoordinates}}
                  */
                 const geodata = await tv.geo.get();
-                const long = Math.floor(geodata.coords.longitude);
-                const lat = Math.floor(geodata.coords.latitude);
+                const long = Math.round(geodata.coords.longitude);
+                const lat = Math.round(geodata.coords.latitude);
                 /**
                  * @type {{hits:[]}}
                  */
