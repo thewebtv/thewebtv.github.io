@@ -294,7 +294,9 @@ const tv = {
         },
         start: async function () {
             tv.iheart.stop(); // stop existing things
-            const { hits } = await tv.iheart.getAllStations();
+            const response = await tv.iheart.getAllStations();
+            console.log(response);
+            const { hits } = response;
             clearTimeout(tv.iheart.__debounce__);
             tv.iheart.__debounce__ = setTimeout(() => {
                 const hit = hits[Math.floor(Math.random()*hits.length)];
