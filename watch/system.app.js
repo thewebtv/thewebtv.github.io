@@ -40,10 +40,16 @@ const tv = {
             tv.system.app = id;
             tv.hdmi.stop();
             if(id === 'live-tv') {
+                tv.iheart.stop();
                 tv.live.start();
             } else if(id === 'hdmi') {
                 tv.live.stop();
+                tv.iheart.stop();
                 tv.hdmi.start(hdmiId);
+            } else if(id === 'iheart') {
+                tv.live.stop();
+                tv.hdmi.stop();
+                tv.iheart.stop();
             } else {
                 tv.live.stop();
                 // TO DO: Handle third-party apps
@@ -242,8 +248,34 @@ const tv = {
             show: () => {},
             hide: () => {}
         }
+    },
+    iheart: {
+        hls: Hls.isSupported() ? new Hls() : null,
+        getAllStations: async () => await (await fetch('https://api.iheart.com/api/v2/content/liveStations/')).json(),
+        stop: function () {
+            if(!tv.iheart.hls) return;
+            $iheartvideo.pause();
+            tv.iheart.hls.stopLoad();
+        },
+        start: async function () {
+            tv.iheart.stop(); // stop existing things
+            const { hits } = await tv.iheart.getAllStations();
+            clearTimeout(tv.iheart.__debounce__);
+            tv.iheart.__debounce__ = setTimeout(() => {
+                tv.iheart.hls.loadSource(
+                    hits[Math.floor(Math.random()*hits.length)].streams.hls_stream
+                );
+                tv.iheart.hls.startLoad();
+                $iheartvideo.play();
+            }, 1000);
+        },
+        __debounce__: 0
     }
 };
+
+if(tv.iheart.hls) {
+    tv.iheart.hls.attachMedia($iheartvideo);
+}
 
 window.onkeydown = function(event) {
     if(event.keyCode === 87) {
