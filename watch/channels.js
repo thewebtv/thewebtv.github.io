@@ -2,7 +2,7 @@ const CHANNELS = [
     {
         id: 'abc',
         name: "ABC News HD",
-        feed: "https://content.uplynk.com/channel/3324f2467c414329b3b0cc5cd987b6be.m3u8",
+        feed: "https://livetv-fa.tubi.video/abc-news/index.m3u8",
         category: 'News',
         quality: 'hd',
         schedule: {
