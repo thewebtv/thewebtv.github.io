@@ -3,10 +3,10 @@ const tv = {
         hls: null,
         hdmi: null,
         get name() {
-            return localStorage.getItem('tv:name') || `My ${Config.Device.Name}`;
+            return localStorage.getItem('tv.system.name') || `My ${Config.Device.Name}`;
         },
         set name(name) {
-            return localStorage.getItem('tv:name', name);
+            return localStorage.setItem('tv.system.name', name);
         },
         app: 'live-tv',
         volume: 30,
@@ -21,10 +21,10 @@ const tv = {
     },
     data: {
         get: function (key) {
-            return localStorage.getItem(`tv:data:${key}`);
+            return localStorage.getItem(`tv.data:${key}`);
         },
         set: function (key, value) {
-            return localStorage.setItem(`tv:data:${key}`, value);
+            return localStorage.setItem(`tv.data:${key}`, value);
         }
     },
     apps: {
@@ -251,7 +251,42 @@ const tv = {
     },
     iheart: {
         hls: Hls.isSupported() ? new Hls() : null,
-        getAllStations: async () => await (await fetch('https://api.iheart.com/api/v2/content/liveStations?countryCode=US&limit=99999')).json(),
+        requestLocation: async () => {
+            // TODO: Add location permission dialog
+            return false;
+        },
+        getRegion: async () => {
+            if(!localStorage.getItem('tv.iheart.location')) {
+                localStorage.setItem(
+                    'tv.iheart.location',
+                    await tv.iheart.requestLocation()
+                );
+            }
+            if(localStorage.getItem('tv.iheart.location') === 'false') return null;
+            try {
+                /**
+                 * @type {{coords:GeolocationCoordinates}}
+                 */
+                const geodata = await tv.geo.get();
+                const long = Math.floor(geodata.coords.longitude);
+                const lat = Math.floor(geodata.coords.latitude);
+                /**
+                 * @type {{hits:[]}}
+                 */
+                const resp = await (await fetch(`https://api.iheart.com/api/v2/content/markets?lat=${lat}&lng=${long}&limit=100&cache=true`)).json();
+                return resp.hits[0] ? resp.hits[0].marketId : null;
+            } catch (error) {
+                return null;
+            }
+        },
+        getAllStations: async (forceUSOnly) => {
+            const region = forceUSOnly ? null : await tv.iheart.getRegion();
+            if(typeof region === 'number') {
+                return await (await fetch('https://api.iheart.com/api/v2/content/liveStations?countryCode=US&limit=99999')).json();
+            } else {
+                return await (await fetch(`https://api.iheart.com/api/v2/content/liveStations?limit=99999&marketId=${region}`)).json();
+            }
+        },
         stop: function () {
             if(!tv.iheart.hls) return;
             $iheartvideo.pause();
