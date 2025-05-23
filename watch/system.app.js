@@ -273,6 +273,9 @@ const tv = {
             }, 1000);
         },
         __debounce__: 0
+    },
+    geo: {
+        get: () => new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject))
     }
 };
 
