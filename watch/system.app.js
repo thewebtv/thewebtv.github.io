@@ -96,13 +96,29 @@ const tv = {
             if(typeof channelId === 'number') tv.live.channel = channelId;
             tv.live.stop(); // stop existing things
             clearTimeout(tv.live.__debounce__);
+            tv.live.badge.set(tv.live.channel, CHANNELS[tv.live.channel]);
             tv.live.__debounce__ = setTimeout(() => {
                 tv.system.hls.loadSource(CHANNELS[tv.live.channel].feed);
                 tv.system.hls.startLoad();
                 $livevideo.play();
             }, 1000);
         },
-        __debounce__: 0
+        __debounce__: 0,
+        badge: {
+            __debounce__: 0,
+            set: (index, {id, name, category}) => {
+                clearTimeout(tv.live.badge.__debounce__);
+                const badge = document.querySelector('.live-badge');
+                document.querySelector('.live-badge-img').src = `./channels/${id}.png`;
+                document.querySelector('.live-badge-index').innerText = `Channel ${index+1}`;
+                document.querySelector('.live-badge-channel').innerText = name;
+                document.querySelector('.live-badge-category').innerText = category;
+                badge.style.display = '';
+                tv.live.badge.__debounce__ = setTimeout(function () {
+                    badge.style.display = 'none';
+                }, 5000);
+            }
+        }
     },
     hdmi: {
         id: null,
@@ -179,7 +195,7 @@ const tv = {
                 tv.home.focusTile(0);
                 tv.home.open = true;
                 tv.home.changing = false;
-            }, 1000);
+            }, 500);
         },
         __tiles__: [],
         hide: () => {
@@ -324,6 +340,7 @@ const tv = {
                 return await (await fetch('https://api.iheart.com/api/v2/content/liveStations?countryCode=US&limit=99999')).json();
             }
         },
+        getLiveStations: async ({ limit, marketId, countryCode, genre }) => {},
         /**
          * 
          * @param {{
@@ -399,7 +416,7 @@ if(tv.iheart.hls) {
 }
 
 window.onkeydown = function(event) {
-    if(event.keyCode === 87) {
+    if(event.keyCode === 87 || event.keyCode === 38) {
         tv.remote.trigger({
             key: 'up',
             source: {
@@ -411,7 +428,7 @@ window.onkeydown = function(event) {
                 keyCode: event.keyCode
             }
         });
-    } else if(event.keyCode === 83) {
+    } else if(event.keyCode === 83 || event.keyCode === 40) {
         tv.remote.trigger({
             key: 'down',
             source: {
@@ -423,7 +440,7 @@ window.onkeydown = function(event) {
                 keyCode: event.keyCode
             }
         });
-    } else if(event.keyCode === 65) {
+    } else if(event.keyCode === 65 || event.keyCode === 37) {
         tv.remote.trigger({
             key: 'left',
             source: {
@@ -435,7 +452,7 @@ window.onkeydown = function(event) {
                 keyCode: event.keyCode
             }
         });
-    } else if(event.keyCode === 68) {
+    } else if(event.keyCode === 68 || event.keyCode === 39) {
         tv.remote.trigger({
             key: 'right',
             source: {

@@ -137,4 +137,7 @@ const onbuttonpressedonhome = (key) => {
     }
 };
 
+tv.system.registerVolume();
+
+
 tv.apps.load(tv.system.app, true);
