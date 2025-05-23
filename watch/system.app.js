@@ -1,6 +1,9 @@
 const tv = {
     system: {
         hls: null,
+        /**
+         * @type {MediaStream|null}
+         */
         hdmi: null,
         get name() {
             return localStorage.getItem('tv.system.name') || `My ${Config.Device.Name}`;
@@ -20,18 +23,40 @@ const tv = {
         noop: () => { return () => {}; }
     },
     data: {
+        /**
+         * 
+         * @param {string} key 
+         * @returns 
+         */
         get: function (key) {
             return localStorage.getItem(`tv.data:${key}`);
         },
+        /**
+         * 
+         * @param {string} key 
+         * @param {string} value 
+         * @returns 
+         */
         set: function (key, value) {
             return localStorage.setItem(`tv.data:${key}`, value);
         }
     },
     apps: {
+        /**
+         * 
+         * @param {string} id 
+         */
         show: function (id) {
             document.querySelector(`.feature.fg-${tv.system.app}`).style.display = 'none';
             document.querySelector(`.feature.fg-${id}`).style.display = '';
         },
+        /**
+         * 
+         * @param {string} id 
+         * @param {string|number|boolean} hdmiId 
+         * @param {boolean} bp
+         * @returns 
+         */
         load: function (id, hdmiId, bp) {
             if(id === 'hdmi' && !hdmiId) return;
             if(id === tv.system.app && id != 'hdmi' && !hdmiId) return;
@@ -63,6 +88,10 @@ const tv = {
             $livevideo.pause();
             tv.system.hls.stopLoad();
         },
+        /**
+         * 
+         * @param {number} channelId 
+         */
         start: function (channelId) {
             if(typeof channelId === 'number') tv.live.channel = channelId;
             tv.live.stop(); // stop existing things
@@ -83,6 +112,10 @@ const tv = {
             $hdmivideo.srcObject = null;
             tv.system.hdmi.getTracks().forEach(track => track.stop());
         },
+        /**
+         * 
+         * @param {string|number} id 
+         */
         start: function (id) {
             tv.hdmi.id = id;
             tv.hdmi.stop();
@@ -255,6 +288,10 @@ const tv = {
             // TODO: Add location permission dialog
             return false;
         },
+        /**
+         * 
+         * @returns {number|null}
+         */
         getRegion: async () => {
             if(!localStorage.getItem('tv.iheart.location')) {
                 localStorage.setItem(
@@ -286,6 +323,49 @@ const tv = {
             } else {
                 return await (await fetch('https://api.iheart.com/api/v2/content/liveStations?countryCode=US&limit=99999')).json();
             }
+        },
+        /**
+         * 
+         * @param {{
+         *  marketId?: number,
+         *  keyword: string,
+         * countryCode?: string
+         * }} param0 
+         * @returns {Promise<{
+         *  "results": {
+         *      callLetters: string,
+         *      score: number,
+         *      imageUrl: string,
+         *      name: string,
+         *      genre: "Alternative"|"Christian"|"Classic Rock"|"Classical"|"Country"|"Hip Hop"|"Jazz & Blues"|"News & Talk"|"Oldies"|string,
+         *      id: number,
+         *      normRank: number,
+         *      frequency: string
+         * }[],
+         *  "bestMatch": {
+         *      callLetters: string,
+         *      score: number,
+         *      imageUrl: string,
+         *      name: string,
+         *      genre: "Alternative"|"Christian"|"Classic Rock"|"Classical"|"Country"|"Hip Hop"|"Jazz & Blues"|"News & Talk"|"Oldies"|string,
+         *      id: number,
+         *      normRank: number,
+         *      frequency: string
+         * }
+         * }>}
+         */
+        getSearchResults: async ({
+            marketId,
+            keyword,
+            countryCode
+        }) => {
+            return await (
+                await fetch(`https://us.api.iheart.com/api/v3/search/combined?${
+                    typeof marketId === 'number' ? 'boostMarketId='+marketId+'&' : null
+                }bundle=false&keyword=true&keywords=${encodeURIComponent(keyword)}${
+                    countryCode ? '&countryCode='+countryCode : ''
+                }&artist=false&playlist=false&station=true&podcast=false&track=false`)
+            ).json();
         },
         stop: function () {
             if(!tv.iheart.hls) return;
