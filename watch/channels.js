@@ -83,6 +83,17 @@ const CHANNELS = [
         id: 'ae-crime-360',
         name: "A&E Crime 360",
         feed: "https://live-manifest.production-public.tubi.io/live/8cba5c00-34f4-45da-a73a-1e3d813a0cfb/playlist.m3u8?token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJjb3VudHJ5IjoiVVMiLCJkZXZpY2VfaWQiOiJlYTY2NjBmMC0zNzY2LTRiZTQtOGQ2Yy1iNGM1ZWNjNTFhNTQiLCJleHAiOjE3NDgzMDM5ODksImlzcyI6ImxpdmVfbmV3c19tYW5pZmVzdCIsInBsYXRmb3JtIjoiV0VCIiwicnNzIjoiYXA6Y3JpbWUtMzYwIiwidXNlcl9pZCI6MH0.7OfV5rg9H5fgAT9CpGwl2ELD5zNEFpitPDFFMK53AQSReDe2uK-9oSxFvH9UF3VLmmWa131JPh2do_XE57Mhvw",
+        category: 'Mystery',
+        quality: 'hd',
+        schedule: {
+            available: false
+        }
+    },
+    {
+        id: 'anime-hidive',
+        name: 'ANIME\u00D7HIDIVE',
+        feed: 'https://epg.provider.plex.tv/library/parts/5e20b730f2f8d5003d739db7-63dea56a2a2abb171ff6dadf/variant.m3u8?x-plex-token=kzqpW6LW2_fWpux7K8n3&url=496b9079fc931fd603c92491195cdd28-556698f111b9f2950eaefe06143d701fa0498026bb2d8e05168d0faf1c171b3a4f3374158ac91156bb6e1f4dca3180501d32c2a73c9ca00e2586d75aac5edd0bfc5d0bfc6be06337f18d834180126edf571a554e6483cd33ae3a24fd81857f68313c5dec074d5d69bbd5b4114c552d2411bf6c266c7170042a1455a0082d5a26f1337f3e253fced622c6191a60fc1497feab48ed80e74df5a7736bb42f65a18364346fab7f0b7f3110c7a65b1472d5a72cef1ff3567e1531cd4f06a8adde218e',
+        category: 'Anime',
         quality: 'hd',
         schedule: {
             available: false
