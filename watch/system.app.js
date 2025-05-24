@@ -76,7 +76,7 @@ const tv = {
         }
     },
     live: {
-        region: 'US',
+        region: 'us',
         channel: 0,
         stop: function () {
             if(!tv.system.hls) return;
