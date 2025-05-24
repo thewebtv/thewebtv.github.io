@@ -492,3 +492,14 @@ window.onkeydown = function(event) {
 if(Hls.isSupported()) tv.system.hls = new Hls({
     renderTextTracksNatively: false
 }), tv.system.hls.attachMedia($livevideo);
+
+if(tv.system.hls) {
+    tv.system.hls.on(
+        Hls.Events.NON_NATIVE_TEXT_TRACKS_FOUND,
+        (event, data) => {
+            if(window.ConsoleLogTextTracks) {
+                console.log(data);
+            }
+        }
+    );
+}
