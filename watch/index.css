@@ -20,6 +20,8 @@ html {
     overflow: hidden;
 }
 
+.app { transition: 425ms; }
+
 .content-player {
     width: 100%;
     height: 100%;
@@ -97,4 +99,102 @@ html {
     padding: 0px;
     width: 100%;
     font-size: 24px;
+}
+
+.live-badge {
+    background-color: rgb(37, 37, 37);
+    width: 300px;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 16px;
+    border-radius: 20px;
+}
+
+.live-badge-img {
+    height: 48px;
+    width: 48px;
+    border-radius: 12px;
+}
+
+.live-badge-labels {
+    width: 236px;
+}
+
+.live-badge-labels p { margin: 0; }
+
+.live-badge-index {
+    font-size: 12px;
+    opacity: 0.6;
+}
+
+.live-badge-channel {
+    font-size: 24px;
+}
+
+.tv-alert {
+    position: fixed;
+    background-color: black;
+    border: 8px solid rgb(61, 61, 61);
+    padding: 16px;
+    width: 820px;
+    height: 445px;
+    top: calc((100% - 445px - 16px - 32px) / 2);
+    left: calc((100% - 820px - 16px - 32px) / 2);
+    border-radius: 20px;
+}
+
+.tv-alert-header {
+    width: calc(100% - 32px);
+    font-size: 32px;
+    padding: 16px;
+    height: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.tv-alert-body {
+    width: 100%;
+    font-size: 22px;
+    height: calc(100% - 32px - 48px - 32px - 48px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.tv-alert-footer {
+    width: calc(100% - 32px);
+    font-size: 32px;
+    padding: 16px;
+    height: 48px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+.tv-alert-button {
+    padding: 8px 36px;
+    height: 32px;
+    font-size: 24px;
+    border: 3px solid rgb(61, 61, 61);
+    border-radius: 50px;
+    margin-left: 16px;
+    margin-right: 16px;
+}
+
+.tv-alert-button-active {
+    transform: scale(1.3);
+    color: black;
+    border-color: white;
+    background-color: white;
+}
+
+.tv-alert-link {
+    color: rgb(0, 157, 255)
 }
