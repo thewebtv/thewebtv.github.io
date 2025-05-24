@@ -94,14 +94,14 @@ const REQUEST_TILES = tv.home.onrequesttiles = async () => {
 const onbuttonpressed = (event) => {
     if(tv.system.app === 'live-tv') {
         if(event.key === 'up') {
-            if(tv.live.channel === CHANNELS.length - 1) {
+            if(tv.live.channel === CHANNELS[tv.live.region].length - 1) {
                 tv.live.start(0);
             } else {
                 tv.live.start(tv.live.channel + 1);
             }
         } else if(event.key === 'down') {
             if(tv.live.channel === 0) {
-                tv.live.start(CHANNELS.length - 1);
+                tv.live.start(CHANNELS[tv.live.region].length - 1);
             } else {
                 tv.live.start(tv.live.channel - 1);
             }
