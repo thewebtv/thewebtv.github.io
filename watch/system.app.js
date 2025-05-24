@@ -76,6 +76,7 @@ const tv = {
         }
     },
     live: {
+        region: 'US',
         channel: 0,
         stop: function () {
             if(!tv.system.hls) return;
@@ -90,9 +91,9 @@ const tv = {
             if(typeof channelId === 'number') tv.live.channel = channelId;
             tv.live.stop(); // stop existing things
             clearTimeout(tv.live.__debounce__);
-            tv.live.badge.set(tv.live.channel, CHANNELS[tv.live.channel]);
+            tv.live.badge.set(tv.live.channel, CHANNELS[tv.live.region][tv.live.channel]);
             tv.live.__debounce__ = setTimeout(() => {
-                tv.system.hls.loadSource(CHANNELS[tv.live.channel].feed);
+                tv.system.hls.loadSource(CHANNELS[tv.live.region][tv.live.channel].feed);
                 tv.system.hls.startLoad();
                 $livevideo.play();
             }, 1000);
@@ -112,6 +113,9 @@ const tv = {
                     badge.style.display = 'none';
                 }, 5000);
             }
+        },
+        captions: {
+            enabled: () => false
         }
     },
     hdmi: {
