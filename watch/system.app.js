@@ -88,6 +88,7 @@ const tv = {
          * @param {number} channelId 
          */
         start: function (channelId) {
+            tv.live.captions.cues = [];
             if(typeof channelId === 'number') tv.live.channel = channelId;
             tv.live.stop(); // stop existing things
             clearTimeout(tv.live.__debounce__);
@@ -101,6 +102,11 @@ const tv = {
         __debounce__: 0,
         badge: {
             __debounce__: 0,
+            /**
+             * 
+             * @param {number} index 
+             * @param {{id: string, name: string, category: string}} details 
+             */
             set: (index, {id, name, category}) => {
                 clearTimeout(tv.live.badge.__debounce__);
                 const badge = document.querySelector('.live-badge');
@@ -115,7 +121,11 @@ const tv = {
             }
         },
         captions: {
-            enabled: () => false
+            enabled: () => false,
+            /**
+             * @type {VTTCue[]}
+             */
+            cues: []
         }
     },
     hdmi: {
@@ -514,15 +524,41 @@ if(Hls.isSupported()) tv.system.hls = new Hls({
 
 if(tv.system.hls) {
     tv.system.hls.on(
-        Hls.Events.NON_NATIVE_TEXT_TRACKS_FOUND,
-        (event, data) => {}
-    );
-    tv.system.hls.on(
         Hls.Events.CUES_PARSED,
+        /**
+         * 
+         * @param {*} event 
+         * @param {{cues:VTTCue[]}} data 
+         */
         (event, data) => {
-            if(window.ConsoleLogTextTracks) {
-                console.log(data);
+            if(data.cues && Array.isArray(data.cues)) {
+                data.cues.forEach(cue => {
+                    cue.forEach(tv.live.cues.push(cue));
+                });
             }
         }
     );
+}
+
+$livevideo.ontimechange = function () {
+    if(tv.system.app != 'live-tv') return;
+    if(!tv.live.captions.enabled) return;
+    /**
+     * @type {VTTCue}
+     */
+    let cue;
+    /** @type {number} */
+    const ktime = $livevideo.currentTime;
+    /** @type {HTMLDivElement}  */
+    const cap = document.querySelector('.live-captions');
+    tv.live.captions.cues.forEach(kcue => {
+        if(ktime >= kcue.startTime && ktime <= kcue.endTime) {
+            cue = kcue;
+        }
+    });
+    if(!cue) return cap.innerText = '';
+    cap.className = cue.align === 'left' ? 'live-captions align-left' : (
+        cue.align === 'right' ? 'live-captions align-right' : 'live-captions'
+    );
+    cap.innerText = cue.text;
 }
