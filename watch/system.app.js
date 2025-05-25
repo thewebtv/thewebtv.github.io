@@ -121,7 +121,7 @@ const tv = {
             }
         },
         captions: {
-            enabled: () => false,
+            enabled: () => true,
             /**
              * @type {VTTCue[]}
              */
