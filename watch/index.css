@@ -199,7 +199,7 @@ html {
     color: rgb(0, 157, 255)
 }
 
-.live-caption {
+.live-captions {
     position: fixed;
     bottom: 32px;
     left: 32px;
@@ -209,11 +209,10 @@ html {
     text-align: center;
 }
 
-
-.live-caption.align-left {
+.live-captions.align-left {
     text-align: left;
 }
 
-.live-caption.align-right {
+.live-captions.align-right {
     text-align: right;
 }
