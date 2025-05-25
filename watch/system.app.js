@@ -138,11 +138,26 @@ const tv = {
                 navigator.mediaDevices.getUserMedia({
                     video: {
                         groupId: id,
-                        width: 1920,
-                        height: 1080
+                        width: {
+                            ideal: 1920,
+                            max: 3840
+                        },
+                        height: {
+                            ideal: 1080,
+                            max: 2160
+                        }
                     },
                     audio: {
-                        groupId: id
+                        groupId: id,
+                        sampleRate: 48000,
+                        channelCount: {
+                            min: 2,
+                            max: 8,
+                            ideal: 6
+                        },
+                        echoCancellation: false,
+                        autoGainControl: false,
+                        noiseSuppression: false
                     }
                 }).then(stream => {
                     tv.system.hdmi = stream;
