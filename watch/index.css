@@ -198,3 +198,21 @@ html {
 .tv-alert-link {
     color: rgb(0, 157, 255)
 }
+
+.live-caption {
+    position: fixed;
+    bottom: 32px;
+    left: 32px;
+    width: calc(100% - 64px);
+    font-size: 38px;
+    font-family: Lexend;
+    text-align: center;
+}
+
+.live-caption.align-left {
+    text-align: left;
+}
+
+.live-caption.align-right {
+    text-align: right;
+}

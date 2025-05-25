@@ -514,6 +514,10 @@ if(Hls.isSupported()) tv.system.hls = new Hls({
 
 if(tv.system.hls) {
     tv.system.hls.on(
+        Hls.Events.NON_NATIVE_TEXT_TRACKS_FOUND,
+        (event, data) => {}
+    );
+    tv.system.hls.on(
         Hls.Events.CUES_PARSED,
         (event, data) => {
             if(window.ConsoleLogTextTracks) {
