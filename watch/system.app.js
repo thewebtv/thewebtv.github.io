@@ -531,6 +531,7 @@ if(tv.system.hls) {
          * @param {{cues:VTTCue[]}} data 
          */
         (event, data) => {
+            console.log(data);
             if(data.cues && Array.isArray(data.cues)) {
                 data.cues.forEach(cue => {
                     cue.forEach(tv.live.cues.push(cue));
@@ -556,7 +557,8 @@ $livevideo.ontimechange = function () {
             cue = kcue;
         }
     });
-    if(!cue) return cap.innerText = '';
+    console.log(cue);
+    if(!cue) return cap.querySelector('p').innerText = '';
     cap.className = cue.align === 'left' ? 'live-captions align-left' : (
         cue.align === 'right' ? 'live-captions align-right' : 'live-captions'
     );
