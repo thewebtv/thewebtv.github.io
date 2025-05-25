@@ -540,7 +540,7 @@ if(tv.system.hls) {
     );
 }
 
-$livevideo.ontimechange = function () {
+$livevideo.ontimeupdate = function () {
     if(tv.system.app != 'live-tv') return;
     if(!tv.live.captions.enabled()) return;
     /**
