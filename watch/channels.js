@@ -19,7 +19,20 @@ const CHANNELS = {
             name: "NBC News NOW",
             feed: "https://epg.provider.plex.tv/library/parts/5e20b730f2f8d5003d739db7-5fc70600dd53a6002d8f93ca/variant.m3u8?x-plex-token=pBAhJwbvHDSzsvJyQxTe&url=9cfe799c2b08f5c9e35e6cee404a1a99-566d10681034d59d58fe2d518af741368ca3817c1cd528aeac1c7e1b73cffc5d04883b10afd074ad03956c7aca90c745b5d61442339ca3627a7b8dbb00fc4fe61832f102258e7f5840f46da2a0b7c9bba3b5dd91512027d076acc9455957c84d810ad98065722ce5cd27e17dfbdc7a2b40dc071edd97563be484fced28fc33abdd0243dedcefe21637e54975ceef56ae82b074ca044c83bff0a03e63ce3fef4f",
             category: 'News',
-            quality: 'hd'
+            quality: 'hd',
+            guide: async () => {
+                const EPGURL = 'https://epg.provider.plex.tv/channels/5e20b730f2f8d5003d739db7-5fc70600dd53a6002d8f93ca/tune';
+                const EPG = await (await fetch(EPGURL.json()));
+                const data = [];
+                EPG.MediaContainer.MediaSubscription[0].MediaGrabOperation.forEach(item => {
+                    data.push({
+                        rating: item.contentRating,
+                        name: item.grandparentTitle || item.title,
+                        start: new Date(item.Media[0].beginsAt*1000),
+                        ends: new Date(item.Media[0].endsAt*1000)
+                    });
+                });
+            }
         },
         {
             id: 'bbc',
