@@ -22,7 +22,7 @@ const CHANNELS = {
             quality: 'hd',
             guide: async () => {
                 const EPGURL = 'https://epg.provider.plex.tv/channels/5e20b730f2f8d5003d739db7-5fc70600dd53a6002d8f93ca/tune';
-                const EPG = await (await fetch(EPGURL.json()));
+                const EPG = await (await fetch(EPGURL)).json();
                 const data = [];
                 EPG.MediaContainer.MediaSubscription[0].MediaGrabOperation.forEach(item => {
                     data.push({
