@@ -531,10 +531,9 @@ if(tv.system.hls) {
          * @param {{cues:VTTCue[]}} data 
          */
         (event, data) => {
-            console.log(data);
             if(data.cues && Array.isArray(data.cues)) {
                 data.cues.forEach(cue => {
-                    cue.forEach(tv.live.cues.push(cue));
+                    cue.forEach(tv.live.captions.cues.push(cue));
                 });
             }
         }
@@ -543,7 +542,7 @@ if(tv.system.hls) {
 
 $livevideo.ontimechange = function () {
     if(tv.system.app != 'live-tv') return;
-    if(!tv.live.captions.enabled) return;
+    if(!tv.live.captions.enabled()) return;
     /**
      * @type {VTTCue}
      */
