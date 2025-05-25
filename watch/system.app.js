@@ -561,5 +561,5 @@ $livevideo.ontimeupdate = function () {
     cap.className = cue.align === 'left' ? 'live-captions align-left' : (
         cue.align === 'right' ? 'live-captions align-right' : 'live-captions'
     );
-    cap.innerText = cue.text;
+    cap.querySelector('p').innerText = cue.text;
 }

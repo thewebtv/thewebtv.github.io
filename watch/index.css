@@ -207,6 +207,7 @@ html {
     font-size: 38px;
     font-family: Lexend;
     text-align: center;
+    filter: drop-shadow(5px 5px 4px #0000007f);
 }
 
 .live-captions.align-left {
