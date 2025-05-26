@@ -48,7 +48,7 @@ const REQUEST_INPUT_TILES = tv.home.onrequesttiles = async () => {
              * }[]}
              */
             const devices = await navigator.usb.getDevices();
-            const entries = await USBStorageDeviceReader.i.fh.keys();
+            const entries = await USBStorageReader.i.fh.keys();
             const usedNames = [];
             const toBeTiled = [];
             for(let i = 0; i < devices.length; i++) {
