@@ -288,8 +288,8 @@ $livevideo.ontimeupdate = function () {
         // Okay, WebVTT is REALLY starting to piss
         // me off at this point!
         const k = document.createElement('div');
-        k.appendChild(kcue.getCueAsHTML());
-        cues.push(k.innerHTML);
+        k.appendChild();
+        cueText.push(k.innerHTML);
     });
     const cue = cues[0] || null;
     /** @type {number} */
@@ -299,5 +299,5 @@ $livevideo.ontimeupdate = function () {
     cap.className = cue.align === 'left' ? 'live-captions align-left' : (
         cue.align === 'right' ? 'live-captions align-right' : 'live-captions'
     );
-    cap.querySelector('p').innerText = cueText.join('<br/>');
+    cap.querySelector('p').innerHTML = cueText.join('<br/>');
 };
