@@ -129,6 +129,7 @@ const REQUEST_APP_TILES = tv.home.onrequesttiles = async () => {
                 if(USBStorageReader.Capable && !USBStorageReader.i.fh) {
                     try {
                         USBStorageReader.i.fh = await window.showDirectoryPicker();
+                        await idb.set('EXT_DRIVE_HANDLE', USBStorageReader.i.fh); // We don't want to cause chaos on Chrome
                     } catch (error) {
                         console.warn(error);
                     }
@@ -226,6 +227,7 @@ const USBStorageReader = {
 };
 
 if('showDirectoryPicker' in window && 'indexedDB' in window && 'usb' in navigator) {
+    // Support reading USB devices
     Idb.Open('USBStorageDeviceReader').then(async db => {
         USBStorageReader.Capable = true;
         USBStorageReader.i.idb = db;
@@ -251,6 +253,7 @@ if('showDirectoryPicker' in window && 'indexedDB' in window && 'usb' in navigato
 
 
 if(tv.system.hls && false) {
+    // Unused, kept for archival purposes
     tv.system.hls.on(
         Hls.Events.CUES_PARSED,
         /**
@@ -281,7 +284,13 @@ $livevideo.ontimeupdate = function () {
         return ktime >= kcue.startTime && ktime <= kcue.endTime
     }).sort((a, b) => a.line - b.line);
     let cueText = [];
-    cues.forEach(kcue => cueText.push(kcue.getCueAsHTML())); // hopefully will fix something
+    cues.forEach(kcue => {
+        // Okay, WebVTT is REALLY starting to piss
+        // me off at this point!
+        const k = document.createElement('div');
+        k.appendChild(kcue.getCueAsHTML());
+        cues.push(k.innerHTML);
+    });
     const cue = cues[0] || null;
     /** @type {number} */
     /** @type {HTMLDivElement}  */
