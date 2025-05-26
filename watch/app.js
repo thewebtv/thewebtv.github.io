@@ -276,6 +276,7 @@ if(tv.system.hls && false) {
 $livevideo.ontimeupdate = function () {
     if(tv.system.app != 'live-tv') return;
     if(!tv.live.captions.enabled()) return;
+    if(!$livevideo.textTracks[0]) return;
     /**
      * @type {VTTCue}
      */
