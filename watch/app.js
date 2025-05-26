@@ -277,14 +277,20 @@ $livevideo.ontimeupdate = function () {
     if(tv.system.app != 'live-tv') return;
     if(!tv.live.captions.enabled()) return;
     const cap = document.querySelector('.live-captions'); // bug fix #9,001
-    if(!$livevideo.textTracks[0]) cap.querySelector('p').innerText = '';
-    if(!$livevideo.textTracks[0].cues) cap.querySelector('p').innerText = '';
     /**
      * @type {VTTCue}
      */
     try {
+        let track = null;
+        for(let q = 0; q < $livevideo.textTracks.length; q++) {
+            if($livevideo.textTracks[q].cues) {
+                track = q;
+                break;
+            }
+        }
+        if(!track) return cap.querySelector('p').innerText = '';
         const ktime = $livevideo.currentTime;
-        const cues = Array.from($livevideo.textTracks[0].cues).filter(kcue => {
+        const cues = Array.from($livevideo.textTracks[track].cues).filter(kcue => {
             return ktime >= kcue.startTime && ktime <= kcue.endTime
         }).sort((a, b) => a.line - b.line);
         let cueText = [];
