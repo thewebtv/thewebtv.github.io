@@ -282,15 +282,16 @@ $livevideo.ontimeupdate = function () {
      */
     try {
         let track = null;
-        for(let q = 0; q < $livevideo.textTracks.length; q++) {
-            if($livevideo.textTracks[q].cues) {
+        let SWFE = Array.from($livevideo.textTracks);
+        for(let q = 0; q < SWFE.length; q++) {
+            if(SWFE[q].cues) {
                 track = q;
                 break;
             }
         }
         if(!track) return cap.querySelector('p').innerText = '';
         const ktime = $livevideo.currentTime;
-        const cues = Array.from($livevideo.textTracks[track].cues).filter(kcue => {
+        const cues = Array.from(SWFE[track].cues).filter(kcue => {
             return ktime >= kcue.startTime && ktime <= kcue.endTime
         }).sort((a, b) => a.line - b.line);
         let cueText = [];
