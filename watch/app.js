@@ -276,12 +276,12 @@ if(tv.system.hls && false) {
 $livevideo.ontimeupdate = function () {
     if(tv.system.app != 'live-tv') return;
     if(!tv.live.captions.enabled()) return;
+    const cap = document.querySelector('.live-captions'); // bug fix #9,001
     if(!$livevideo.textTracks[0]) cap.querySelector('p').innerText = '';
     if(!$livevideo.textTracks[0].cues) cap.querySelector('p').innerText = '';
     /**
      * @type {VTTCue}
      */
-    const cap = document.querySelector('.live-captions');
     try {
         const ktime = $livevideo.currentTime;
         const cues = Array.from($livevideo.textTracks[0].cues).filter(kcue => {
