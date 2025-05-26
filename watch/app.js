@@ -271,6 +271,7 @@ $livevideo.ontimeupdate = function () {
     /**
      * @type {VTTCue}
      */
+    const ktime = $livevideo.currentTime;
     const cues = tv.live.captions.cues.filter(kcue => {
         return ktime >= kcue.startTime && ktime <= kcue.endTime
     });
@@ -278,7 +279,6 @@ $livevideo.ontimeupdate = function () {
     cues.forEach(kcue => cueText += kcue.text); // hopefully will fix something
     const cue = cues[0] || null;
     /** @type {number} */
-    const ktime = $livevideo.currentTime;
     /** @type {HTMLDivElement}  */
     const cap = document.querySelector('.live-captions');
     if(!cue) return cap.querySelector('p').innerText = '';
