@@ -134,7 +134,7 @@ const REQUEST_APP_TILES = tv.home.onrequesttiles = async () => {
                 tv.home.hide();
                 setTimeout(() => {
                     tv.home.onrequesttiles = REQUEST_INPUT_TILES;
-                    tv.home.show().catch(e => console.warn(e));
+                    tv.home.show().catch(exception => console.warn(exception));
                 }, 400);
             }
         },
@@ -246,3 +246,44 @@ if('showDirectoryPicker' in window && 'indexedDB' in window && 'usb' in navigato
         console.warn(error);
     });
 }
+
+if(tv.system.hls) {
+    tv.system.hls.on(
+        Hls.Events.CUES_PARSED,
+        /**
+         * 
+         * @param {*} event 
+         * @param {{cues:VTTCue[]}} data 
+         */
+        (event, data) => {
+            if(data.cues && Array.isArray(data.cues)) {
+                data.cues.forEach(cue => {
+                    cue.forEach(tv.live.captions.cues.push(cue));
+                });
+            }
+        }
+    );
+}
+
+$livevideo.ontimeupdate = function () {
+    if(tv.system.app != 'live-tv') return;
+    if(!tv.live.captions.enabled()) return;
+    /**
+     * @type {VTTCue}
+     */
+    const cues = tv.live.captions.cues.filter(kcue => {
+        return ktime >= kcue.startTime && ktime <= kcue.endTime
+    });
+    let cueText = '';
+    cues.forEach(kcue => cueText += kcue.text); // hopefully will fix something
+    const cue = cues[0] || null;
+    /** @type {number} */
+    const ktime = $livevideo.currentTime;
+    /** @type {HTMLDivElement}  */
+    const cap = document.querySelector('.live-captions');
+    if(!cue) return cap.querySelector('p').innerText = '';
+    cap.className = cue.align === 'left' ? 'live-captions align-left' : (
+        cue.align === 'right' ? 'live-captions align-right' : 'live-captions'
+    );
+    cap.querySelector('p').innerText = cueText;
+};
