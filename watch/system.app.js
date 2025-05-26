@@ -157,7 +157,7 @@ const tv = {
                             max: 2160
                         }
                     },
-                    audio: {
+                    audio: config.audio ? {
                         groupId: config.audio,
                         sampleRate: 48000,
                         channelCount: {
@@ -168,7 +168,7 @@ const tv = {
                         echoCancellation: false,
                         autoGainControl: false,
                         noiseSuppression: false
-                    }
+                    } : false
                 }).then(stream => {
                     tv.system.hdmi = stream;
                     $hdmivideo.srcObject = stream;

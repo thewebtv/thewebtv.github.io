@@ -21,9 +21,11 @@ const REQUEST_INPUT_TILES = tv.home.onrequesttiles = async () => {
     const audioDevices = {}
     devices.forEach(k => { if(k.kind==='audioinput') audioDevices[k.groupId] = k.deviceId });
     devices.forEach(device => {
-        if(device.kind === 'videoinput' && audioDevices[device.groupId]) {
+        if(device.kind === 'videoinput') {
             const tile = tv.home.tile();
-            tile.innerHTML = `<div style="justify-content:center;display:flex;flex-direction:column;text-align:center;width:100%;height:100%;"><p style="margin:0px;left:0px;">[HDMI]${device.label.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</p></div>`;
+            tile.innerHTML = `<div style="justify-content:center;display:flex;flex-direction:column;text-align:center;width:100%;height:100%;"><p style="margin:0px;left:0px;">[${
+                audioDevices[device.groupId] ? 'HDMI' : 'ALG'
+            }]${device.label.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</p></div>`;
             tiles.push({
                 tile: tile,
                 onclick: function () {
@@ -247,7 +249,8 @@ if('showDirectoryPicker' in window && 'indexedDB' in window && 'usb' in navigato
     });
 }
 
-if(tv.system.hls) {
+
+if(tv.system.hls && false) {
     tv.system.hls.on(
         Hls.Events.CUES_PARSED,
         /**
@@ -274,9 +277,9 @@ $livevideo.ontimeupdate = function () {
      * @type {VTTCue}
      */
     const ktime = $livevideo.currentTime;
-    const cues = tv.live.captions.cues.filter(kcue => {
+    const cues = Array.from($livevideo.textTracks[0].cues).filter(kcue => {
         return ktime >= kcue.startTime && ktime <= kcue.endTime
-    });
+    }).sort((a, b) => a.line - b.line);
     let cueText = '';
     cues.forEach(kcue => cueText += kcue.text); // hopefully will fix something
     const cue = cues[0] || null;
