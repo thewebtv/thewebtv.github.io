@@ -289,7 +289,7 @@ $livevideo.ontimeupdate = function () {
                 break;
             }
         }
-        if(!track) return cap.querySelector('p').innerText = '';
+        if(typeof track != 'number') return cap.querySelector('p').innerText = '';
         const ktime = $livevideo.currentTime;
         const cues = Array.from(SWFE[track].cues).filter(kcue => {
             return ktime >= kcue.startTime && ktime <= kcue.endTime
