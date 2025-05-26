@@ -288,7 +288,7 @@ $livevideo.ontimeupdate = function () {
         // Okay, WebVTT is REALLY starting to piss
         // me off at this point!
         const k = document.createElement('div');
-        k.appendChild();
+        k.appendChild(kcue.getCueAsHTML());
         cueText.push(k.innerHTML);
     });
     const cue = cues[0] || null;
