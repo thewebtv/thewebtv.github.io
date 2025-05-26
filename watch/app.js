@@ -279,7 +279,7 @@ $livevideo.ontimeupdate = function () {
     const ktime = $livevideo.currentTime;
     const cues = Array.from($livevideo.textTracks[0].cues).filter(kcue => {
         return ktime >= kcue.startTime && ktime <= kcue.endTime
-    });
+    }).sort((a, b) => a.line - b.line);
     let cueText = [];
     cues.forEach(kcue => cueText.push(kcue.text)); // hopefully will fix something
     const cue = cues[0] || null;
