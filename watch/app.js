@@ -134,7 +134,7 @@ const REQUEST_APP_TILES = tv.home.onrequesttiles = async () => {
                 tv.home.hide();
                 setTimeout(() => {
                     tv.home.onrequesttiles = REQUEST_INPUT_TILES;
-                    tv.home.show();
+                    tv.home.show().catch(e => console.warn(e));
                 }, 400);
             }
         },
