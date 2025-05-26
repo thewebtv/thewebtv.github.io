@@ -135,7 +135,7 @@ const REQUEST_APP_TILES = tv.home.onrequesttiles = async () => {
                 setTimeout(() => {
                     tv.home.onrequesttiles = REQUEST_INPUT_TILES;
                     tv.home.show().catch(exception => console.warn(exception));
-                }, 400);
+                }, 445);
             }
         },
         {
@@ -260,6 +260,8 @@ if(tv.system.hls) {
                 data.cues.forEach(cue => {
                     cue.forEach(tv.live.captions.cues.push(cue));
                 });
+            } else if(data.cues instanceof VTTCue) {
+                tv.live.captions.cues.push(data.cues);
             }
         }
     );
