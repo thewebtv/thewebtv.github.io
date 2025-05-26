@@ -276,29 +276,34 @@ if(tv.system.hls && false) {
 $livevideo.ontimeupdate = function () {
     if(tv.system.app != 'live-tv') return;
     if(!tv.live.captions.enabled()) return;
-    if(!$livevideo.textTracks[0]) return;
+    if(!$livevideo.textTracks[0]) cap.querySelector('p').innerText = '';
+    if(!$livevideo.textTracks[0].cues) cap.querySelector('p').innerText = '';
     /**
      * @type {VTTCue}
      */
-    const ktime = $livevideo.currentTime;
-    const cues = Array.from($livevideo.textTracks[0].cues).filter(kcue => {
-        return ktime >= kcue.startTime && ktime <= kcue.endTime
-    }).sort((a, b) => a.line - b.line);
-    let cueText = [];
-    cues.forEach(kcue => {
-        // Okay, WebVTT is REALLY starting to piss
-        // me off at this point!
-        const k = document.createElement('div');
-        k.appendChild(kcue.getCueAsHTML());
-        cueText.push(k.innerHTML);
-    });
-    const cue = cues[0] || null;
-    /** @type {number} */
-    /** @type {HTMLDivElement}  */
-    const cap = document.querySelector('.live-captions');
-    if(!cue) return cap.querySelector('p').innerText = '';
-    cap.className = cue.align === 'left' ? 'live-captions align-left' : (
-        cue.align === 'right' ? 'live-captions align-right' : 'live-captions'
-    );
-    cap.querySelector('p').innerHTML = cueText.join('<br/>');
+    try {
+        const ktime = $livevideo.currentTime;
+        const cues = Array.from($livevideo.textTracks[0].cues).filter(kcue => {
+            return ktime >= kcue.startTime && ktime <= kcue.endTime
+        }).sort((a, b) => a.line - b.line);
+        let cueText = [];
+        cues.forEach(kcue => {
+            // Okay, WebVTT is REALLY starting to piss
+            // me off at this point!
+            const k = document.createElement('div');
+            k.appendChild(kcue.getCueAsHTML());
+            cueText.push(k.innerHTML);
+        });
+        const cue = cues[0] || null;
+        /** @type {number} */
+        /** @type {HTMLDivElement}  */
+        const cap = document.querySelector('.live-captions');
+        if(!cue) return cap.querySelector('p').innerText = '';
+        cap.className = cue.align === 'left' ? 'live-captions align-left' : (
+            cue.align === 'right' ? 'live-captions align-right' : 'live-captions'
+        );
+        cap.querySelector('p').innerHTML = cueText.join('<br/>');
+    } catch (error) {
+        cap.querySelector('p').innerText = '';
+    }
 };
