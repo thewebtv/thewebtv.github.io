@@ -15,10 +15,10 @@
             <p><a href='/watch/' target='_blank'>Try it out today</a></p>
             <h2>Keymap List</h2>
             <ul>
-                <li>WASD: Arrow buttons</li>
+                <li>Arrow keys: Arrow buttons</li>
                 <li>Space/Enter: OK</li>
                 <li>Escpae: Back</li>
-                <li>H: Home</li>
+                <li>Ctrl: Home</li>
                 <li>0-9: 0-9</li>
                 <li>Backspace: Backspace</li>
                 <li>I/K: Volume Up/Down</li>
@@ -40,15 +40,16 @@
             </p>
             <h3>USB Devices</h3>
             <p>
-                <b>Reason:</b> There's an upcoming feature that allows you to use a BBC Micro:bit to receive infrared signals. <i>ONly works on Chrome.</i>
+                <b>Reason:</b> We're adding support for playing back audio and video from mass storage USB devices (e.g. flash drives, external SSD).
                 <br/><br/>
-                Note: WebUSB isn't a "grant access to all" type permission; you'll have to grant access for each micro:bit you want to use.
+                Note: WebUSB isn't a "grant access to all" type permission; you'll have to grant access for each USB device you want to use.
                 <br/><br/>
-                Note: This is an upcoming feature; it doesn't do anything right now.
+                Note: You also might be prompted to select a folder on your computer if you select the "HDMI" app. The folder needs to contain subfolders with the names of your plugged-in flash drive, or they won't show up in the sources menu.
             </p>
             <p>
                 <button id="usb">Allow</button>
             </p>
+            <p id='usbpairresults'></p>
         </div>
         <script src="./konbini.full.js"></script>
         <script>
@@ -64,7 +65,12 @@
                 $usb.innerText = "WebUSB is only supported on Chrome and Edge for desktop.";
             } else {
                 $usb.onclick = () => {
-                    uBitConnectDevice((reason)=>{if(reason==='connected')alert('Successfully paired!');});
+                    navigator.usb.requestDevice([
+                        { vendorId: 0x0d28, productId: 0x0204 },
+                        { deviceClass: 0x08 }
+                    ]).then(device => {
+                        $usbpairresults.innerText += `Paired device "${device.productName}" successfully!`;
+                    });
                 };
             }
         </script>

@@ -15,8 +15,95 @@ tv.remote.onbuttonpressed = function (event={key:'unknown',source:{id:'',type:'u
     }
 }
 
-const REQUEST_TILES = tv.home.onrequesttiles = async () => {
+const REQUEST_INPUT_TILES = tv.home.onrequesttiles = async () => {
+    const tiles = [];
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const audioDevices = {}
+    devices.forEach(k => { if(k.kind==='audioinput') audioDevices[k.groupId] = k.deviceId });
+    devices.forEach(device => {
+        if(device.kind === 'videoinput' && audioDevices.includes(device.groupId)) {
+            const tile = tv.home.tile();
+            tile.innerHTML = `<div style="justify-content:center;display:flex;flex-direction:column;text-align:center;width:100%;height:100%;"><p style="margin:0px;left:0px;">[HDMI]${device.label.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</p></div>`;
+            tiles.push({
+                tile: tile,
+                onclick: function () {
+                    tv.home.hide();
+                    tv.apps.load('hdmi', {
+                        video: device.deviceId,
+                        audio: audioDevices[device.groupId]
+                    });
+                }
+            });
+        }
+    });
+    if(USBStorageReader.Capable && USBStorageReader.i.fh) {
+        try {
+            /**
+             * @type {{
+             * deviceClass: number,
+             * deviceSubClass: number,
+             * deviceProtocol: number,
+             * manufacturerName: string,
+             * productName: string
+             * }[]}
+             */
+            const devices = await navigator.usb.getDevices();
+            const entries = await USBStorageDeviceReader.i.fh.keys();
+            const usedNames = [];
+            const toBeTiled = [];
+            for(let i = 0; i < devices.length; i++) {
+                try {
+                    // https://www.usb.org/defined-class-codes
+                    // Mass storage device is class 08h
+                    if(devices[i].deviceClass === 0x08) {
+                        const deviceName = devices[i].productName.replaceAll("..", '').replaceAll('/', '').replaceAll('\\', '').replaceAll('?', '').replaceAll(':', '').replaceAll('"', '').replaceAll('<', '').replaceAll('>', '').replaceAll('|', '');
+                        let folderName = deviceName;
+                        
+                        if(usedNames.includes(deviceName)) {
+                            let j = 1;
+                            while(usedNames.includes(folderName)) {
+                                folderName = `${deviceName} (${j})`;
+                                j += 1;
+                            }
+                        }
+
+                        usedNames.push(folderName);
+
+                        if(entries.includes(folderName)) {
+                            // Helps keep the context clean.
+                            toBeTiled.push(folderName);
+                        }
+                    }
+                } catch (error) {
+                    // Separate try-catch so one USB device failing
+                    // doesn't brick all the others.
+                    void(error);
+                }
+            }
+            toBeTiled.forEach(folderName => {
+                const tile = tv.home.tile();
+                tile.innerHTML = `<div style="justify-content:center;display:flex;flex-direction:column;text-align:center;width:100%;height:100%;"><p style="margin:0px;left:0px;">[USB]${folderName.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</p></div>`;
+                tiles.push({
+                    tile: tile,
+                    onclick: function () {
+                        tv.home.hide();
+                        tv.apps.load('usb', {
+                            folder: folderName
+                        });
+                    }
+                });
+            });
+        } catch (error) {
+            console.warn(error);
+        }
+    };
+    tv.home.onrequesttiles = REQUEST_APP_TILES;
+    return tiles;
+};
+
+const REQUEST_APP_TILES = tv.home.onrequesttiles = async () => {
     const liveTVTile = tv.home.tile();
+    // TODO: Create our own Live TV icon
     liveTVTile.style.backgroundImage = 'url(./assets/livetv.png)';
     liveTVTile.style.backgroundSize = 'cover';
     const hdmiInputTile = tv.home.tile();
@@ -35,32 +122,19 @@ const REQUEST_TILES = tv.home.onrequesttiles = async () => {
         },
         {
             tile: hdmiInputTile,
-            onclick: function () {
+            onclick: async () => {
+                if(USBStorageReader.Capable && !USBStorageReader.i.fh) {
+                    try {
+                        USBStorageReader.i.fh = await window.showDirectoryPicker();
+                    } catch (error) {
+                        console.warn(error);
+                    }
+                }
                 tv.home.hide();
                 setTimeout(() => {
-                    tv.home.onrequesttiles = async () => {
-                        const tiles = [];
-                        const devices = await navigator.mediaDevices.enumerateDevices();
-                        const audioDevices = [];
-                        devices.forEach(k => { if(k.kind==='audioinput') audioDevices.push(k.groupId) });
-                        devices.forEach(device => {
-                            if(device.kind === 'videoinput') {
-                                const tile = tv.home.tile();
-                                tile.innerHTML = `<div style="justify-content:center;display:flex;flex-direction:column;text-align:center;width:100%;height:100%;"><p style="margin:0px;left:0px;">${device.label.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</p></div>`;
-                                tiles.push({
-                                    tile: tile,
-                                    onclick: function () {
-                                        tv.home.hide();
-                                        tv.apps.load('hdmi', device.groupId);
-                                    }
-                                });
-                            }
-                        });
-                        tv.home.onrequesttiles = REQUEST_TILES;
-                        return tiles;
-                    };
+                    tv.home.onrequesttiles = REQUEST_INPUT_TILES;
                     tv.home.show();
-                },1000);
+                }, 400);
             }
         },
         {
@@ -133,3 +207,41 @@ tv.system.registerVolume();
 
 
 tv.apps.load(tv.system.app, true);
+
+const USBStorageReader = {
+    Capable: false,
+    i: {
+        /**
+         * @type {IDBDatabase|null}
+         */
+        idb: null,
+        /**
+         * @type {FileSystemDirectoryHandle|null}
+         */
+        fh: null
+    }
+};
+
+if('showDirectoryPicker' in window && 'indexedDB' in window && 'usb' in navigator) {
+    Idb.Open('USBStorageDeviceReader').then(async db => {
+        USBStorageReader.Capable = true;
+        USBStorageReader.i.idb = db;
+        try {
+            USBStorageReader.i.fh = idb.get('EXT_DRIVE_HANDLE');
+        } catch (error) {
+            void(error);
+        }
+        if(!USBStorageReader.i.fh) {
+            /**
+             * @type {Promise<FileSystemDirectoryHandle>}
+             */
+            try {
+                 USBStorageReader.i.fh = await showDirectoryPicker();
+            } catch (error) {
+                console.warn(error);
+            }
+        };
+    }).catch(error => {
+        console.warn(error);
+    });
+}

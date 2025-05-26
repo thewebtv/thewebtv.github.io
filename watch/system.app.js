@@ -138,16 +138,16 @@ const tv = {
         },
         /**
          * 
-         * @param {string|number} id 
+         * @param {{video:string|number,audio:string|number}} config 
          */
-        start: function (id) {
+        start: function (config) {
             tv.hdmi.id = id;
             tv.hdmi.stop();
             clearTimeout(tv.hdmi.__debounce__);
             tv.hdmi.__debounce__ = setTimeout(() => {
                 navigator.mediaDevices.getUserMedia({
                     video: {
-                        groupId: id,
+                        groupId: config.video,
                         width: {
                             ideal: 1920,
                             max: 3840
@@ -158,7 +158,7 @@ const tv = {
                         }
                     },
                     audio: {
-                        groupId: id,
+                        groupId: config.audio,
                         sampleRate: 48000,
                         channelCount: {
                             min: 2,
@@ -177,6 +177,20 @@ const tv = {
             }, 1000);
         },
         __debounce__: 0
+    },
+    usbdrive: {
+        /**
+         * @type {FileSystemDirectoryHandle}
+         */
+        fh: null,
+        section: 'browse',
+        path: '/',
+        start: () => {
+            tv.usbdrive.path = '/';
+            tv.usbdrive.section = 'browse';
+            // TO DO: Add actual app features here
+        },
+        stop: () => {}
     },
     home: {
         open: false,
@@ -329,7 +343,7 @@ const tv = {
 };
 
 window.onkeydown = function(event) {
-    if(event.keyCode === 87 || event.keyCode === 38) {
+    if(/*event.keyCode === 87 ||*/ event.keyCode === 38) {
         tv.remote.trigger({
             key: 'up',
             source: {
@@ -341,7 +355,7 @@ window.onkeydown = function(event) {
                 keyCode: event.keyCode
             }
         });
-    } else if(event.keyCode === 83 || event.keyCode === 40) {
+    } else if(/*event.keyCode === 83 ||*/ event.keyCode === 40) {
         tv.remote.trigger({
             key: 'down',
             source: {
@@ -353,7 +367,7 @@ window.onkeydown = function(event) {
                 keyCode: event.keyCode
             }
         });
-    } else if(event.keyCode === 65 || event.keyCode === 37) {
+    } else if(/*event.keyCode === 65 ||*/ event.keyCode === 37) {
         tv.remote.trigger({
             key: 'left',
             source: {
@@ -365,7 +379,7 @@ window.onkeydown = function(event) {
                 keyCode: event.keyCode
             }
         });
-    } else if(event.keyCode === 68 || event.keyCode === 39) {
+    } else if(/*event.keyCode === 68 ||*/ event.keyCode === 39) {
         tv.remote.trigger({
             key: 'right',
             source: {
@@ -452,7 +466,7 @@ window.onkeydown = function(event) {
                 keyCode: event.keyCode
             }
         });
-    } else if(event.key === 'SelectTask' || event.key === 'h') {
+    } else if(event.key === 'SelectTask' || event.key === 'Control') {
         event.preventDefault();
         tv.remote.trigger({
             key: 'home',
@@ -562,4 +576,4 @@ $livevideo.ontimeupdate = function () {
         cue.align === 'right' ? 'live-captions align-right' : 'live-captions'
     );
     cap.querySelector('p').innerText = cue.text;
-}
+};
