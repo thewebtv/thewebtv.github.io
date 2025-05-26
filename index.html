@@ -65,10 +65,12 @@
                 $usb.innerText = "WebUSB is only supported on Chrome and Edge for desktop.";
             } else {
                 $usb.onclick = () => {
-                    navigator.usb.requestDevice([
-                        { vendorId: 0x0d28, productId: 0x0204 },
-                        { deviceClass: 0x08 }
-                    ]).then(device => {
+                    navigator.usb.requestDevice({
+                        filters: [
+                            { vendorId: 0x0d28, productId: 0x0204 },
+                            { deviceClass: 0x08 }
+                        ]
+                    }).then(device => {
                         $usbpairresults.innerText += `Paired device "${device.productName}" successfully!`;
                     });
                 };
