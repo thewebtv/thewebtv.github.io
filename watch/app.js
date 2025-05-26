@@ -21,7 +21,7 @@ const REQUEST_INPUT_TILES = tv.home.onrequesttiles = async () => {
     const audioDevices = {}
     devices.forEach(k => { if(k.kind==='audioinput') audioDevices[k.groupId] = k.deviceId });
     devices.forEach(device => {
-        if(device.kind === 'videoinput' && audioDevices.includes(device.groupId)) {
+        if(device.kind === 'videoinput' && audioDevices[device.groupId]) {
             const tile = tv.home.tile();
             tile.innerHTML = `<div style="justify-content:center;display:flex;flex-direction:column;text-align:center;width:100%;height:100%;"><p style="margin:0px;left:0px;">[HDMI]${device.label.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</p></div>`;
             tiles.push({
