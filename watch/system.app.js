@@ -533,5 +533,5 @@ window.onkeydown = function(event) {
 };
 
 if(Hls.isSupported()) tv.system.hls = new Hls({
-    renderTextTracksNatively: false
+    renderTextTracksNatively: true
 }), tv.system.hls.attachMedia($livevideo);
