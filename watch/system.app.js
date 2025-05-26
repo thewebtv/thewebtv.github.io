@@ -570,7 +570,6 @@ $livevideo.ontimeupdate = function () {
             cue = kcue;
         }
     });
-    console.log(cue);
     if(!cue) return cap.querySelector('p').innerText = '';
     cap.className = cue.align === 'left' ? 'live-captions align-left' : (
         cue.align === 'right' ? 'live-captions align-right' : 'live-captions'

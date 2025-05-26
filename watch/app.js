@@ -48,31 +48,32 @@ const REQUEST_INPUT_TILES = tv.home.onrequesttiles = async () => {
              * }[]}
              */
             const devices = await navigator.usb.getDevices();
-            const entries = await USBStorageReader.i.fh.keys();
+            const entriesAsync = USBStorageReader.i.fh.keys();
+            const entries = [];
+            // I hate async iterators
+            for await (const key of entriesAsync) entries.push(key);
             const usedNames = [];
             const toBeTiled = [];
             for(let i = 0; i < devices.length; i++) {
                 try {
                     // https://www.usb.org/defined-class-codes
                     // Mass storage device is class 08h
-                    if(devices[i].deviceClass === 0x08) {
-                        const deviceName = devices[i].productName.replaceAll("..", '').replaceAll('/', '').replaceAll('\\', '').replaceAll('?', '').replaceAll(':', '').replaceAll('"', '').replaceAll('<', '').replaceAll('>', '').replaceAll('|', '');
-                        let folderName = deviceName;
-                        
-                        if(usedNames.includes(deviceName)) {
-                            let j = 1;
-                            while(usedNames.includes(folderName)) {
-                                folderName = `${deviceName} (${j})`;
-                                j += 1;
-                            }
+                    const deviceName = devices[i].productName.replaceAll("..", '').replaceAll('/', '').replaceAll('\\', '').replaceAll('?', '').replaceAll(':', '').replaceAll('"', '').replaceAll('<', '').replaceAll('>', '').replaceAll('|', '');
+                    let folderName = deviceName;
+                    
+                    if(usedNames.includes(deviceName)) {
+                        let j = 1;
+                        while(usedNames.includes(folderName)) {
+                            folderName = `${deviceName} (${j})`;
+                            j += 1;
                         }
+                    }
 
-                        usedNames.push(folderName);
+                    usedNames.push(folderName);
 
-                        if(entries.includes(folderName)) {
-                            // Helps keep the context clean.
-                            toBeTiled.push(folderName);
-                        }
+                    if(entries.includes(folderName)) {
+                        // Helps keep the context clean.
+                        toBeTiled.push(folderName);
                     }
                 } catch (error) {
                     // Separate try-catch so one USB device failing
