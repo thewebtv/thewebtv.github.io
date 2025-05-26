@@ -204,7 +204,7 @@ html {
     bottom: 32px;
     left: 32px;
     width: calc(100% - 64px);
-    font-size: 38px;
+    font-size: 24px;
     font-family: Lexend;
     text-align: center;
     filter: drop-shadow(5px 5px 4px #0000007f);

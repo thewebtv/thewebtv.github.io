@@ -279,9 +279,9 @@ $livevideo.ontimeupdate = function () {
     const ktime = $livevideo.currentTime;
     const cues = Array.from($livevideo.textTracks[0].cues).filter(kcue => {
         return ktime >= kcue.startTime && ktime <= kcue.endTime
-    }).sort((a, b) => a.line - b.line);
-    let cueText = '';
-    cues.forEach(kcue => cueText += kcue.text); // hopefully will fix something
+    });
+    let cueText = [];
+    cues.forEach(kcue => cueText.push(kcue.text)); // hopefully will fix something
     const cue = cues[0] || null;
     /** @type {number} */
     /** @type {HTMLDivElement}  */
@@ -290,5 +290,5 @@ $livevideo.ontimeupdate = function () {
     cap.className = cue.align === 'left' ? 'live-captions align-left' : (
         cue.align === 'right' ? 'live-captions align-right' : 'live-captions'
     );
-    cap.querySelector('p').innerText = cueText;
+    cap.querySelector('p').innerText = cueText.join('\n');
 };
