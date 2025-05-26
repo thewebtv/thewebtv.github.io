@@ -281,6 +281,7 @@ $livevideo.ontimeupdate = function () {
     /**
      * @type {VTTCue}
      */
+    const cap = document.querySelector('.live-captions');
     try {
         const ktime = $livevideo.currentTime;
         const cues = Array.from($livevideo.textTracks[0].cues).filter(kcue => {
@@ -297,7 +298,6 @@ $livevideo.ontimeupdate = function () {
         const cue = cues[0] || null;
         /** @type {number} */
         /** @type {HTMLDivElement}  */
-        const cap = document.querySelector('.live-captions');
         if(!cue) return cap.querySelector('p').innerText = '';
         cap.className = cue.align === 'left' ? 'live-captions align-left' : (
             cue.align === 'right' ? 'live-captions align-right' : 'live-captions'
