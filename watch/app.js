@@ -135,7 +135,7 @@ const REQUEST_APP_TILES = tv.home.onrequesttiles = async () => {
                 if(USBStorageReader.Capable && !USBStorageReader.i.fh) {
                     try {
                         USBStorageReader.i.fh = await window.showDirectoryPicker();
-                        await idb.set('EXT_DRIVE_HANDLE', USBStorageReader.i.fh); // We don't want to cause chaos on Chrome
+                        await USBStorageReader.i.idb.set('EXT_DRIVE_HANDLE', USBStorageReader.i.fh); // We don't want to cause chaos on Chrome
                     } catch (error) {
                         console.warn(error);
                     }
@@ -232,7 +232,7 @@ const USBStorageReader = {
     }
 };
 
-if('showDirectoryPicker' in window && 'indexedDB') {
+if('showDirectoryPicker' in window && 'indexedDB' in window) {
     // Support reading USB devices
     Idb.Open('USBStorageDeviceReader').then(async db => {
         USBStorageReader.Capable = true;
