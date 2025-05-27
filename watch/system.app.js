@@ -61,6 +61,7 @@ const tv = {
             if(id === 'hdmi' && !hdmiId) return;
             if(id === tv.system.app && id != 'hdmi' && !hdmiId) return;
             if(id === 'hdmi' && id === tv.system.app && tv.hdmi.id === hdmiId && !bp) return;
+            if(id === 'usb' && id === tv.system.app && tv.usbdrive.root === hdmiId && !bp) return;
             tv.apps.show(id);
             tv.system.app = id;
             tv.hdmi.stop();
@@ -69,7 +70,9 @@ const tv = {
             } else if(id === 'hdmi') {
                 tv.live.stop();
                 tv.hdmi.start(hdmiId);
-            }else {
+            } else if(id === 'usb') {
+                tv.live.stop();
+            } else {
                 tv.live.stop();
                 // TO DO: Handle third-party apps
             }
@@ -142,7 +145,7 @@ const tv = {
          * @param {{video:string|number,audio:string|number}} config 
          */
         start: function (config) {
-            tv.hdmi.id = id;
+            tv.hdmi.id = config.video;
             tv.hdmi.stop();
             clearTimeout(tv.hdmi.__debounce__);
             tv.hdmi.__debounce__ = setTimeout(() => {
