@@ -121,7 +121,8 @@ const tv = {
             }
         },
         captions: {
-            enabled: () => true,
+            // TO DO: fix everything
+            enabled: () => false,
             /**
              * @type {VTTCue[]}
              */
@@ -534,4 +535,4 @@ window.onkeydown = function(event) {
 
 if(Hls.isSupported()) tv.system.hls = new Hls({
     renderTextTracksNatively: true
-}) && tv.system.hls.attachMedia($livevideo);
+}), tv.system.hls.attachMedia($livevideo);
