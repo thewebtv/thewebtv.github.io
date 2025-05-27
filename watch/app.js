@@ -5,7 +5,7 @@ tv.remote.onbuttonpressed = function (event={key:'unknown',source:{id:'',type:'u
     if(event.key === 'home') {
         if(tv.home.changing) return;
         if(tv.home.open) return tv.home.hide();
-        return tv.home.show();
+        return tv.home.show().catch(e=>alert(e.stack||e));
     }
     if(tv.home.changing) return;
     if(tv.home.open) {

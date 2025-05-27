@@ -211,7 +211,9 @@ const tv = {
             tiles.forEach((tile, index) => {
                 if(index === id) {
                     tile.className = 'tile tile-active';
-                    tile.scrollIntoView({ behavior: 'smooth' });
+                    tile.parentNode.scrollIntoView({
+                        behavior: 'smooth',
+                    });
                 } else {
                     tile.className = 'tile';
                 }
@@ -224,7 +226,7 @@ const tv = {
             const tiles = await tv.home.onrequesttiles();
             tv.home.__tiles__ = tiles;
             tiles.forEach(tile => {
-                document.querySelector('.home').appendChild(tile.tile)
+                document.querySelector('.home').appendChild(tile.tile.parentNode);
             });
             document.querySelector('.home').style.display = '';
             setTimeout(() => {
@@ -252,10 +254,13 @@ const tv = {
                 tv.home.changing = false;
             }, 435);
         },
-        onrequesttiles: () => { return [] },
+        onrequesttiles: async () => { return [] },
         tile: () => {
             const tile = document.createElement('div');
             tile.className = 'tile';
+            const cont = document.createElement('div');
+            cont.className = 'tile-container';
+            cont.appendChild(tile);
             return tile;
         },
         length: () => {
