@@ -34,7 +34,9 @@ Idb.prototype.get = async function (key) {
 Idb.prototype.set = async function (key, value) {
     const trans = this._.database.transaction('idb','readwrite');
     const store = trans.objectStore('idb');
-    return await Idb.HandleRequest(store.put(key, value));
+    const o = {};
+    o[key] = value;
+    return await Idb.HandleRequest(store.put(o));
 };
 
 Idb.prototype.rm = async function (key) {
