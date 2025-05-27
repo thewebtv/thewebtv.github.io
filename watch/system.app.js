@@ -151,7 +151,7 @@ const tv = {
             tv.hdmi.__debounce__ = setTimeout(() => {
                 navigator.mediaDevices.getUserMedia({
                     video: {
-                        groupId: config.video,
+                        deviceId: config.video,
                         width: {
                             ideal: 1920,
                             max: 3840
@@ -162,7 +162,7 @@ const tv = {
                         }
                     },
                     audio: config.audio ? {
-                        groupId: config.audio,
+                        deviceId: config.audio,
                         sampleRate: 48000,
                         channelCount: {
                             min: 2,
