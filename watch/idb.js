@@ -26,20 +26,20 @@ const Idb =  function(db, name) {
 
 Idb.prototype.get = async function (key) {
     const trans = this._.database.transaction('idb','readwrite');
-    const store = trans.objectStore;
+    const store = trans.objectStore('idb');
     const data = await Idb.HandleRequest(store.get(key));
     return data.value;
 };
 
 Idb.prototype.set = async function (key, value) {
     const trans = this._.database.transaction('idb','readwrite');
-    const store = trans.objectStore;
+    const store = trans.objectStore('idb');
     return await Idb.HandleRequest(store.put(key, value));
 };
 
 Idb.prototype.rm = async function (key) {
     const trans = this._.database.transaction('idb','readwrite');
-    const store = trans.objectStore;
+    const store = trans.objectStore('idb');
     return await Idb.HandleRequest(store.delete(key));
 };
 
