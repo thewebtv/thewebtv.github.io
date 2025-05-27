@@ -38,18 +38,51 @@
             <p>
                 <button id="camera">Allow</button>
             </p>
-            <h3>USB Devices</h3>
-            <p>
-                <b>Reason:</b> We're adding support for playing back audio and video from mass storage USB devices (e.g. flash drives, external SSD).
-                <br/><br/>
-                Note: WebUSB isn't a "grant access to all" type permission; you'll have to grant access for each USB device you want to use.
-                <br/><br/>
-                Note: You also might be prompted to select a folder on your computer if you select the "HDMI" app. The folder needs to contain subfolders with the names of your plugged-in flash drive, or they won't show up in the sources menu.
-            </p>
-            <p>
-                <button id="usb">Allow</button>
-            </p>
-            <p id='usbpairresults'></p>
+            <div style="display: none;">
+                <h3>USB Devices</h3>
+                <p>
+                    <b>Reason:</b> We're adding support for playing back audio and video from mass storage USB devices (e.g. flash drives, external SSD).
+                    <br/><br/>
+                    Note: WebUSB isn't a "grant access to all" type permission; you'll have to grant access for each USB device you want to use.
+                    <br/><br/>
+                    Note: You also might be prompted to select a folder on your computer if you select the "HDMI" app. The folder needs to contain subfolders with the names of your plugged-in flash drive, or they won't show up in the sources menu.
+                </p>
+                <p>
+                    <button id="usb">Allow</button>
+                </p>
+                <p id='usbpairresults'></p>
+            </div>
+            <h2>Feature Compatibility</h2>
+            <h3>Chrome on Windows</h3>
+            <ul>
+                <li>Support audioless inputs (ALG): <b>yes</b></li>
+                <li>Support inputs with audio (HDMI): <b style="color: red;">no</b></li>
+                <li>
+                    Supports mounting USB drives: <b style="color: orange">partial</b>
+                    <br/>
+                    <li>You can't mount any USB drives, you can only mount subfolders of a folder.</li>
+                </li>
+            </ul>
+            <h3>Firefox on Windows</h3>
+            <ul>
+                <li>Support audioless inputs (ALG): <b style="color: red">no</b></li>
+                <li>Support inputs with audio (HDMI): <b style="color: red;">no</b></li>
+                <li>Supports mounting USB drives: <b style="color: red">no</b></li>
+            </ul>
+            <h3>Chrome on Raspberry Pi</h3>
+            <ul>
+                <li>Support audioless inputs (ALG): <b>yes</b></li>
+                <li>Support inputs with audio (HDMI): <b>yes</b></li>
+                <li>Supports mounting USB drives: <b>yes</b></li>
+            </ul>
+            <h3>Firefox on Raspberry Pi</h3>
+            <p>(not tested)</p>
+            <h3>Chrome on ChromeOS</h3>
+            <ul>
+                <li>Support audioless inputs (ALG): <b>yes</b></li>
+                <li>Support inputs with audio (HDMI): <b>yes</b></li>
+                <li>Supports mounting USB drives: <b style="color:orange">partial, </b><b style='color:red'>NOT RECOMMENDED</b></li>
+            </ul>
         </div>
         <script src="./konbini.full.js"></script>
         <script>
@@ -60,7 +93,7 @@
                     $camera.disabled = true;
                 });
             };
-            if(!navigator.usb) {
+            /*if(!navigator.usb) {
                 $usb.disabled = true;
                 $usb.innerText = "WebUSB is only supported on Chrome and Edge for desktop.";
             } else {
@@ -74,7 +107,7 @@
                         $usbpairresults.innerText += `Paired device "${device.productName}" successfully!`;
                     });
                 };
-            }
+            }*/
         </script>
     </body>
 </html>
