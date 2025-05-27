@@ -30,8 +30,20 @@
                 <video id='hdmivideo' class='content-player'></video>
             </div>
             <div class='feature fg-usb' style='display: none;'>
-                <div style='width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;text-align:center'>
-                    <h1>TO DO: Create app that actually reads USB drives.</h1>
+                <div class='usb-main' style='display: none;'>
+                    <div class='usb-main-header'>
+                        <img src='assets/usb.png' />
+                        <p></p>
+                    </div>
+                    <div class='usb-main-content'>
+                    </div>
+                </div>
+                <div class='usb-text' style='display:none'>
+                    <pre id='usbtextreader'></pre>
+                </div>
+                <div class='usb-image-viewer' style='display: none;'></div>
+                <div class='usb-video' style='display:none'>
+                    <video id='usbvideo' class='content-player'></video>
                 </div>
             </div>
         </div>

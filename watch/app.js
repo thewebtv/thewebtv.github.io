@@ -83,9 +83,7 @@ const REQUEST_INPUT_TILES = tv.home.onrequesttiles = async () => {
                     tile: tile,
                     onclick: function () {
                         tv.home.hide();
-                        tv.apps.load('usb', {
-                            folder: folderName
-                        });
+                        tv.apps.load('usb', folderName);
                     }
                 });
             });
@@ -177,10 +175,89 @@ const onbuttonpressed = (event) => {
                 tv.live.start(tv.live.channel - 1);
             }
         }
+    } else if(tv.system.app === 'hdmi') {
+        // TO DO: Handle HDMI-CEC here
+    } else if(tv.system.app === 'usb') {
+        onbuttonpressedusbreader(event);
     } else {
         tv.apps.dispatchKey(event);
     }
 };
+
+/** @param {string} key */
+const onbuttonpressedusbreader = ({ key, repeat }) => {
+    if(tv.usbdrive.section === 'browse') {
+        if(key === 'up') {
+            if(tv.usbdrive.sfi > 0) {
+                tv.usbdrive.sfi -= 1;
+                tv.usbdrive.focusFileButton(tv.usbdrive.sfi);
+            }
+        } else if(key === 'down') {
+            if(tv.usbdrive.sfi < tv.usbdrive.kf.length - 1) {
+                tv.usbdrive.sfi += 1;
+                tv.usbdrive.focusFileButton(tv.usbdrive.sfi);
+            }
+        } else if(key === 'ok') {
+            // TO DO: Select the button.
+            const entry = tv.usbdrive.kf[tv.usbdrive.sfi];
+            const endingSpliiter = entry.name.toLowerCase().split('.');
+            const ending = endingSpliiter[endingSpliiter.length - 1];
+            if(entry === 'BACK') {
+                const split = tv.usbdrive.path.split('/');
+                const cleanPath = [];
+                for(let i = 0; i < split.length; i++) {
+                    if(split[i].trim()) {
+                        cleanPath.push(split[i])
+                    }
+                }
+                cleanPath.pop();
+                tv.usbdrive.renderFolder(cleanPath.length > 1 ? cleanPath.join('/') : '');
+            } else if(entry.kind === 'directory') {
+                tv.usbdrive.renderFolder(tv.usbdrive.path + entry.name + '/');
+            } else if(entry.name.endsWith('.txt')) {
+                tv.usbdrive.openTextFile(entry.name);
+            } else if('png,jpg,jpeg,gif'.split(',').includes(ending)) {
+                tv.usbdrive.openImageFile(entry.name);
+            }
+        } else if(key === 'exit') {
+            if(tv.usbdrive.path != '/') {
+                const split = tv.usbdrive.path.split('/');
+                const cleanPath = [];
+                for(let i = 0; i < split.length; i++) {
+                    if(split[i].trim()) {
+                        cleanPath.push(split[i])
+                    }
+                }
+                cleanPath.pop();
+                tv.usbdrive.renderFolder(cleanPath.length > 1 ? cleanPath.join('/') : '');
+            }
+        }
+    } else if(tv.usbdrive.section === 'text') {
+        if(key === 'up') {
+            document.querySelector('.usb-text').scrollBy({
+                top: -100,
+                behavior: repeat ? 'instant' : 'smooth'
+            });
+        } else if(key === 'down') {
+            document.querySelector('.usb-text').scrollBy({
+                top: 100,
+                behavior: repeat ? 'instant' : 'smooth'
+            });
+        } else if(key === 'exit') {
+            document.querySelector('.usb-text').style.display = 'none';
+            document.querySelector('.usb-main').style.display = '';
+            tv.usbdrive.section = 'browse';
+        }
+    } else if(tv.usbdrive.section === 'image-viewer') {
+        if(key === 'exit') {
+            URL.revokeObjectURL(tv.usbdrive.objectUrl);
+            tv.usbdrive.objectUrl = '';
+            document.querySelector('.usb-image-viewer').style.display = 'none';
+            document.querySelector('.usb-main').style.display = '';
+            tv.usbdrive.section = 'browse';
+        }
+    }
+}
 
 const onbuttonpressedonhome = (key) => {
     if(key === 'left') {
@@ -201,9 +278,6 @@ const onbuttonpressedonhome = (key) => {
 };
 
 tv.system.registerVolume();
-
-
-tv.apps.load(tv.system.app, true);
 
 const USBStorageReader = {
     Capable: false,
@@ -307,3 +381,7 @@ $livevideo.ontimeupdate = function () {
         cap.querySelector('p').innerText = '';
     }
 };
+
+
+ tv.apps.load(tv.system.app, true);
+// setTimeout(() => tv.apps.load('usb', 'USB Flash Drive'), 1000);

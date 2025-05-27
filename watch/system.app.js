@@ -65,6 +65,7 @@ const tv = {
             tv.apps.show(id);
             tv.system.app = id;
             tv.hdmi.stop();
+            tv.usbdrive.stop();
             if(id === 'live-tv') {
                 tv.live.start();
             } else if(id === 'hdmi') {
@@ -72,6 +73,7 @@ const tv = {
                 tv.hdmi.start(hdmiId);
             } else if(id === 'usb') {
                 tv.live.stop();
+                tv.usbdrive.start(hdmiId);
             } else {
                 tv.live.stop();
                 // TO DO: Handle third-party apps
@@ -187,14 +189,189 @@ const tv = {
          * @type {FileSystemDirectoryHandle}
          */
         fh: null,
+        /**
+         * @type {FileSystemDirectoryHandle}
+         */
+        kfh: null,
         section: 'browse',
         path: '/',
-        start: () => {
-            tv.usbdrive.path = '/';
+        sfi: 0,
+        objectUrl: '',
+        root: '',
+        /**
+         * @type {(FileSystemDirectoryHandle|FileSystemFileHandle)[]}
+         */
+        kf: [],
+        start: async (id) => {
+            tv.usbdrive.root = id;
+            try {
+                tv.usbdrive.fh = await USBStorageReader.i.fh.getDirectoryHandle(id, {
+                    create: false
+                });
+            } catch (error) {
+                setTimeout(() => {
+                    tv.apps.load('live-tv');
+                }, 2307);
+                return;
+            };
+            tv.usbdrive.sfi = 0;
+            tv.usbdrive.path = '';
             tv.usbdrive.section = 'browse';
+            document.querySelector('.usb-main-header p').innerText = id;
+            document.querySelector('.usb-main').style.display = '';
             // TO DO: Add actual app features here
+            await tv.usbdrive.renderFolder('/');
         },
-        stop: () => {}
+        setKhF: async () => {
+            let khf = tv.usbdrive.fh;
+            const split = tv.usbdrive.path.split('/');
+            for(let i = 0; i < split.length; i++) {
+                if(split[i].trim()) {
+                    khf = await khf.getDirectoryHandle(split[i]);
+                }
+            }
+            tv.usbdrive.kfh = khf;
+        },
+        renderFolder: async (path) => {
+            document.querySelector('.usb-main-content').innerText = '';
+            if(!path.endsWith('/')) path += '/';
+            tv.usbdrive.path = path;
+            tv.usbdrive.sfi = 0;
+            await tv.usbdrive.setKhF();
+            const entries = await tv.usbdrive.kfh.entries();
+            /**
+             * @type {{key:string,value:FileSystemDirectoryHandle|FileSystemFileHandle}[]}
+             */
+            const sortedEntries = [];
+            for await(const [key, value] of entries) {
+                // TO DO: Create buttons for files
+                sortedEntries.push({ key, value });
+            }
+            sortedEntries.sort((a, b) => {
+                if(a.value.kind === 'file' && b.value.kind === 'directory') {
+                    return 1;
+                } else if(a.value.kind === 'directory' && b.value.kind === 'file') {
+                    return -1;
+                } else {
+                    return a.key.localeCompare(b.key, undefined, { sensitivity: 'base' });
+                }
+            });
+            const kf = [];
+            if(tv.usbdrive.path != '/') {
+                const backButton = tv.usbdrive.createIconForFile('..', 'f-up.png');
+                document.querySelector('.usb-main-content').appendChild(backButton);
+                backButton.querySelector('.usb-file').classList.add('usb-file-active');
+                kf.push('BACK');
+            }
+            sortedEntries.forEach((entryDetails, i) => {
+                const name = entryDetails.key;
+                const entry = entryDetails.value;
+                kf.push(entry);
+                const endingSpliiter = name.toLowerCase().split('.');
+                const ending = endingSpliiter[endingSpliiter.length - 1];
+                let icon = 'file';
+                if(entry.kind === 'directory') {
+                    icon = 'folder';
+                } else if('mp4,mov,webm,m4v'.split(',').includes(ending)) {
+                    icon = 'f-video';
+                } else if('mp3,m4a,wav'.split(',').includes(ending)) {
+                    icon = 'f-audio';
+                } else if('png,jpg,jpeg,gif'.split(',').includes(ending)) {
+                    icon = 'f-image';
+                } else if('txt,md'.split(',').includes(ending)) {
+                    icon = 'f-doc';
+                } else if('zip,7z'.split(',').includes(ending)) {
+                    icon = 'f-package';
+                } else if('deb,exe,appimage'.split(',').includes(ending)) {
+                    icon = 'f-app';
+                }
+                const button = tv.usbdrive.createIconForFile(name, icon + '.png');
+                if(i < 1 && tv.usbdrive.path == '/') button.querySelector('.usb-file').classList.add('usb-file-active');
+                document.querySelector('.usb-main-content').appendChild(button);
+            });
+            tv.usbdrive.kf = kf;
+        },
+        createIconForFile: (name, icon) => {
+            const cont = document.createElement('div');
+            cont.className = 'usb-file-container';
+            const file = document.createElement('div');
+            file.className = 'usb-file';
+            const img = document.createElement('img');
+            img.className = 'usb-file-img';
+            img.src = `assets/${icon}`;
+            const title = document.createElement('p');
+            title.className = 'usb-file-label';
+            title.innerText = name;
+            file.appendChild(img);
+            file.appendChild(title);
+            cont.appendChild(file);
+            return cont;
+        },
+        stop: () => {
+            if(!$usbvideo.paused) $usbvideo.pause();
+            document.querySelector('.usb-main').style.display = 'none';
+            document.querySelector('.usb-video').style.display = 'none';
+            document.querySelector('.usb-main-content').innerText = '';
+            document.querySelector('.usb-text').style.display = '';
+            document.querySelector('.usb-image-viewer').style.display = '';
+            if(tv.usbdrive.objectUrl) URL.revokeObjectURL(tv.usbdrive.objectUrl);
+        },
+        focusFileButton: (id) => {
+            const tiles = document.querySelectorAll('.usb-main .usb-file');
+            tv.home.selected = id;
+            tiles.forEach((tile, index) => {
+                if(index === id) {
+                    tile.className = 'usb-file usb-file-active';
+                    tile.parentElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                } else {
+                    tile.className = 'usb-file';
+                }
+            });
+        },
+        getFile: async (name) => {
+            const fileHandle = await tv.usbdrive.kfh.getFileHandle(name);
+            return await fileHandle.getFile();
+        },
+        openTextFile: async (name) => {
+            $usbtextreader.innerText = '';
+            document.querySelector('.usb-text').scrollTop = 0;
+            document.querySelector('.usb-main').style.display = 'none';
+            document.querySelector('.usb-text').style.display = '';
+            tv.usbdrive.section = 'buffering';
+            try {
+                const file = await tv.usbdrive.getFile(name);
+                $usbtextreader.innerText = await file.text();
+                tv.usbdrive.section = 'text';
+            } catch (error) {
+                console.warn(error);
+                document.querySelector('.usb-text').style.display = 'none';
+                document.querySelector('.usb-main').style.display = '';
+                tv.usbdrive.section = 'browse';
+                tv.usbdrive.renderFolder(tv.usbdrive.path);
+            }
+        },
+        openImageFile: async (name) => {
+            $usbtextreader.innerText = '';
+            document.querySelector('.usb-main').style.display = 'none';
+            document.querySelector('.usb-image-viewer').style.backgroundImage = '';
+            document.querySelector('.usb-image-viewer').style.display = '';
+            tv.usbdrive.section = 'buffering';
+            try {
+                const file = await tv.usbdrive.getFile(name);
+                const furl = tv.usbdrive.objectUrl = URL.createObjectURL(file);
+                document.querySelector('.usb-image-viewer').style.backgroundImage = `url(${furl})`;
+                tv.usbdrive.section = 'image-viewer';
+            } catch (error) {
+                console.warn(error);
+                document.querySelector('.usb-image-viewer').style.display = 'none';
+                document.querySelector('.usb-main').style.display = '';
+                tv.usbdrive.section = 'browse';
+                tv.usbdrive.renderFolder(tv.usbdrive.path);
+            }
+        }
     },
     home: {
         open: false,
@@ -359,6 +536,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
@@ -371,6 +549,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
@@ -383,6 +562,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
@@ -395,6 +575,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
@@ -407,6 +588,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
@@ -419,6 +601,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
@@ -431,6 +614,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
@@ -444,6 +628,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
@@ -457,6 +642,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
@@ -470,6 +656,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
@@ -483,6 +670,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
@@ -496,6 +684,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
@@ -508,6 +697,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
@@ -520,6 +710,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
@@ -533,6 +724,7 @@ window.onkeydown = function(event) {
                 id: 'JS_KEYBOARD_EVENT',
                 type: 'keyboard'
             },
+            repeat: event.repeat,
             data: {
                 key: event.key,
                 keyCode: event.keyCode
