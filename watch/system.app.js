@@ -312,8 +312,8 @@ const tv = {
             document.querySelector('.usb-main').style.display = 'none';
             document.querySelector('.usb-video').style.display = 'none';
             document.querySelector('.usb-main-content').innerText = '';
-            document.querySelector('.usb-text').style.display = '';
-            document.querySelector('.usb-image-viewer').style.display = '';
+            document.querySelector('.usb-text').style.display = 'none';
+            document.querySelector('.usb-image-viewer').style.display = 'none';
             if(tv.usbdrive.objectUrl) URL.revokeObjectURL(tv.usbdrive.objectUrl);
         },
         focusFileButton: (id) => {

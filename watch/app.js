@@ -200,8 +200,6 @@ const onbuttonpressedusbreader = ({ key, repeat }) => {
         } else if(key === 'ok') {
             // TO DO: Select the button.
             const entry = tv.usbdrive.kf[tv.usbdrive.sfi];
-            const endingSpliiter = entry.name.toLowerCase().split('.');
-            const ending = endingSpliiter[endingSpliiter.length - 1];
             if(entry === 'BACK') {
                 const split = tv.usbdrive.path.split('/');
                 const cleanPath = [];
@@ -212,7 +210,13 @@ const onbuttonpressedusbreader = ({ key, repeat }) => {
                 }
                 cleanPath.pop();
                 tv.usbdrive.renderFolder(cleanPath.length > 1 ? cleanPath.join('/') : '');
-            } else if(entry.kind === 'directory') {
+                return;
+            }
+
+            const endingSpliiter = entry.name.toLowerCase().split('.');
+            const ending = endingSpliiter[endingSpliiter.length - 1];
+            
+            if(entry.kind === 'directory') {
                 tv.usbdrive.renderFolder(tv.usbdrive.path + entry.name + '/');
             } else if(entry.name.endsWith('.txt')) {
                 tv.usbdrive.openTextFile(entry.name);
