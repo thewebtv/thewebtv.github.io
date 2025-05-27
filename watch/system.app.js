@@ -82,11 +82,6 @@ const tv = {
             if(!tv.system.hls) return;
             $livevideo.pause();
             tv.system.hls.stopLoad();
-            try {
-                tv.system.hls.detatchMedia();
-            } catch (error) {
-                void(error);
-            }
         },
         /**
          * 
@@ -96,7 +91,6 @@ const tv = {
             tv.live.captions.cues = [];
             if(typeof channelId === 'number') tv.live.channel = channelId;
             tv.live.stop(); // stop existing things
-            tv.system.hls.attachMedia($livevideo);
             clearTimeout(tv.live.__debounce__);
             tv.live.badge.set(tv.live.channel, CHANNELS[tv.live.region][tv.live.channel]);
             tv.live.__debounce__ = setTimeout(() => {
@@ -540,4 +534,4 @@ window.onkeydown = function(event) {
 
 if(Hls.isSupported()) tv.system.hls = new Hls({
     renderTextTracksNatively: true
-})
+}) && tv.system.hls.attachMedia($livevideo);

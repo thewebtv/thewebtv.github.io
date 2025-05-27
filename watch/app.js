@@ -49,34 +49,16 @@ const REQUEST_INPUT_TILES = tv.home.onrequesttiles = async () => {
              * productName: string
              * }[]}
              */
-            const devices = await navigator.usb.getDevices();
             const entriesAsync = USBStorageReader.i.fh.keys();
             const entries = [];
             // I hate async iterators
             for await (const key of entriesAsync) entries.push(key);
             const usedNames = [];
             const toBeTiled = [];
-            for(let i = 0; i < devices.length; i++) {
+            for await (const key of entriesAsync) {
                 try {
-                    // https://www.usb.org/defined-class-codes
-                    // Mass storage device is class 08h
-                    const deviceName = devices[i].productName.replaceAll("..", '').replaceAll('/', '').replaceAll('\\', '').replaceAll('?', '').replaceAll(':', '').replaceAll('"', '').replaceAll('<', '').replaceAll('>', '').replaceAll('|', '');
-                    let folderName = deviceName;
-                    
-                    if(usedNames.includes(deviceName)) {
-                        let j = 1;
-                        while(usedNames.includes(folderName)) {
-                            folderName = `${deviceName} (${j})`;
-                            j += 1;
-                        }
-                    }
-
-                    usedNames.push(folderName);
-
-                    if(entries.includes(folderName)) {
-                        // Helps keep the context clean.
-                        toBeTiled.push(folderName);
-                    }
+                    // Helps keep the context clean.
+                    toBeTiled.push(folderName);
                 } catch (error) {
                     // Separate try-catch so one USB device failing
                     // doesn't brick all the others.
@@ -84,8 +66,32 @@ const REQUEST_INPUT_TILES = tv.home.onrequesttiles = async () => {
                 }
             }
             toBeTiled.forEach(folderName => {
+                let deviceType = 'usb';
+                if(
+                    [
+                        'GOPROSD',
+                        'HERO4 Black',
+                        'HERO5 Black',
+                        'HERO6 Black',
+                        'HERO7 Black',
+                        'HERO8 Black',
+                        'HERO9 Black',
+                        'HERO10 Black',
+                        'HERO11 Black',
+                        'HERO11 Black Mini',
+                        'HERO12 Black',
+                        'HERO13 Black'
+                    ].includes(folderName)
+                ) {
+                    deviceType = 'camera'
+                } else if(
+                    folderName.toLowerCase().endsWith(' ipod')
+                    || folderName.toLowerCase() === 'ipod'
+                ) {
+                    deviceType = 'ipod';
+                }
                 const tile = tv.home.tile();
-                tile.innerHTML = `<div style="justify-content:center;display:flex;flex-direction:column;text-align:center;width:100%;height:100%;"><p style="margin:0px;left:0px;">[USB]${folderName.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</p></div>`;
+                tile.innerHTML = `<div style="justify-content:center;display:flex;flex-direction:column;text-align:center;width:100%;height:100%;"><p style="margin:0px;left:0px;">[${deviceType}]${folderName.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}</p></div>`;
                 tiles.push({
                     tile: tile,
                     onclick: function () {
@@ -226,7 +232,7 @@ const USBStorageReader = {
     }
 };
 
-if('showDirectoryPicker' in window && 'indexedDB' in window && 'usb' in navigator) {
+if('showDirectoryPicker' in window && 'indexedDB') {
     // Support reading USB devices
     Idb.Open('USBStorageDeviceReader').then(async db => {
         USBStorageReader.Capable = true;
