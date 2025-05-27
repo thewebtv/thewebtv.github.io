@@ -63,13 +63,6 @@ const CHANNELS = {
             quality: 'hd'
         },
         {
-            id: 'cbs-sports-hq',
-            name: "CBS Sports HQ",
-            feed: "https://dai.google.com/linear/hls/pa/event/9Lq0ERvoSR-z9AwvFS-xYA/stream/518a7fc2-3dc0-455f-9b31-611710ac9350:CHS/variant/f1394531f46e3ae55a7bfe72b32eddec/bandwidth/5859480.m3u8",
-            category: 'Sports',
-            quality: 'hd'
-        },
-        {
             id: 'ion-mystery',
             name: "ION Mystery",
             feed: "https://scripps-ionmystery-1-us.xumo.wurl.tv/playlist.m3u8",
