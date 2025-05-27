@@ -314,6 +314,7 @@ const tv = {
             document.querySelector('.usb-main-content').innerText = '';
             document.querySelector('.usb-text').style.display = 'none';
             document.querySelector('.usb-image-viewer').style.display = 'none';
+            document.querySelector('.usb-audio').style.display = 'none';
             if(tv.usbdrive.objectUrl) URL.revokeObjectURL(tv.usbdrive.objectUrl);
         },
         focusFileButton: (id) => {
@@ -371,7 +372,48 @@ const tv = {
                 tv.usbdrive.section = 'browse';
                 tv.usbdrive.renderFolder(tv.usbdrive.path);
             }
-        }
+        },
+        openAudioFile: async (name) => {
+            $usbtextreader.innerText = '';
+            document.querySelector('.usb-main').style.display = 'none';
+            document.querySelector('.usb-audio').style.display = 'flex';
+            $usbaudiotitle.innerText = name;
+            $usbaudioartist.innerText = 'Flash Drive';
+            $usbaudioalbum.innerText = '';
+            tv.usbdrive.section = 'buffering';
+            tv.usbdrive.audioSelectedIcon = 0;
+            try {
+                const file = await tv.usbdrive.getFile(name);
+                const furl = tv.usbdrive.objectUrl = URL.createObjectURL(file);
+                $usbvideo.src = furl;
+                $usbvideo.play();
+                ID3Parse.BufferToString(await file.arrayBuffer()).then(text => {
+                    /** @type {{title:string,artist:string,album:string}} */
+                    let metadata = {};
+                    if(text.indexOf('\u0000\u0000\u0000ftypM4A') < 100) {
+                        // M4A file
+                        metadata = ID3Parse.ParseM4A(text);
+                    }
+                    if(metadata.title) {
+                        $usbaudiotitle.innerText = metadata.title;
+                    }
+                    if(metadata.artist) {
+                        $usbaudioartist.innerText = metadata.artist;
+                    }
+                    if(metadata.album) {
+                        $usbaudioalbum.innerText = metadata.album;
+                    }
+                });
+                tv.usbdrive.section = 'audio';
+            } catch (error) {
+                console.warn(error);
+                document.querySelector('.usb-main').style.display = '';
+                document.querySelector('.usb-audio').style.display = 'none';
+                tv.usbdrive.section = 'browse';
+                tv.usbdrive.renderFolder(tv.usbdrive.path);
+            }
+        },
+        audioSelectedIcon: 0
     },
     home: {
         open: false,

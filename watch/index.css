@@ -335,3 +335,31 @@ html {
     max-width: 100%;
     max-height: 100%;
 }
+
+.usb-audio {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+.usb-audio-meta {
+    height: fit-content;
+}
+
+.usb-audio p {
+    margin: 0;
+    padding: 4px;
+}
+
+#usbaudiotitle {
+    font-size: 48px;
+}
+
+#usbaudioartist {
+    font-size: 32px;
+}
+
+#usbaudioalbum {
+    font-size: 21px;
+}

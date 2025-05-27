@@ -9,6 +9,7 @@
         <script src='channels.js'></script>
         <script>onerror=alert</script>
         <script src='idb.js'></script>
+        <script src='id3-parser.js'></script>
     </head>
     <body>
         <div class='app'>
@@ -43,6 +44,13 @@
                 </div>
                 <div class='usb-image-viewer' style='display: none;'>
                     <div><img/></div>
+                </div>
+                <div class='usb-audio' style='display:none'>
+                    <div class='usb-audio-meta'>
+                        <p class='usb-audio-artist' id='usbaudioalbum'></p>
+                        <p class='usb-audio-album' id='usbaudiotitle'></p>
+                        <p class='usb-audio-title' id='usbaudioartist'></p>
+                    </div>
                 </div>
                 <div class='usb-video' style='display:none'>
                     <video id='usbvideo' class='content-player'></video>

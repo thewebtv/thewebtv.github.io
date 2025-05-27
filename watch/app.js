@@ -215,13 +215,15 @@ const onbuttonpressedusbreader = ({ key, repeat }) => {
 
             const endingSpliiter = entry.name.toLowerCase().split('.');
             const ending = endingSpliiter[endingSpliiter.length - 1];
-            
+
             if(entry.kind === 'directory') {
                 tv.usbdrive.renderFolder(tv.usbdrive.path + entry.name + '/');
             } else if(entry.name.endsWith('.txt')) {
                 tv.usbdrive.openTextFile(entry.name);
             } else if('png,jpg,jpeg,gif'.split(',').includes(ending)) {
                 tv.usbdrive.openImageFile(entry.name);
+            } else if('mp3,m4a,wav'.split(',').includes(ending)) {
+                tv.usbdrive.openAudioFile(entry.name);
             }
         } else if(key === 'exit') {
             if(tv.usbdrive.path != '/') {
@@ -259,6 +261,18 @@ const onbuttonpressedusbreader = ({ key, repeat }) => {
             document.querySelector('.usb-image-viewer').style.display = 'none';
             document.querySelector('.usb-main').style.display = '';
             tv.usbdrive.section = 'browse';
+        }
+    } else if(tv.usbdrive.section === 'audio') {
+        if(key === 'exit') {
+            URL.revokeObjectURL(tv.usbdrive.objectUrl);
+            if(!$usbvideo.paused) $usbvideo.pause();
+            tv.usbdrive.objectUrl = '';
+            document.querySelector('.usb-audio').style.display = 'none';
+            document.querySelector('.usb-main').style.display = '';
+            tv.usbdrive.section = 'browse';
+        } else if(key === 'ok') {
+            if($usbvideo.paused) $usbvideo.play();
+            else $usbvideo.pause();
         }
     }
 }
@@ -387,5 +401,5 @@ $livevideo.ontimeupdate = function () {
 };
 
 
- tv.apps.load(tv.system.app, true);
-// setTimeout(() => tv.apps.load('usb', 'USB Flash Drive'), 1000);
+//tv.apps.load(tv.system.app, true);
+ setTimeout(() => tv.apps.load('usb', 'USB Flash Drive'), 1000);
