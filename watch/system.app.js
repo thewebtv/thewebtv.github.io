@@ -500,10 +500,10 @@ const tv = {
         }
     },
     volume: {
-        up: (amount=5) => {
+        up: (amount=2) => {
             tv.volume.set(tv.system.volume + amount);
         },
-        down: (amount=5) => {
+        down: (amount=2) => {
             tv.volume.set(tv.system.volume - amount);
         },
         mute: () => {
