@@ -401,5 +401,5 @@ $livevideo.ontimeupdate = function () {
 };
 
 
-//tv.apps.load(tv.system.app, true);
- setTimeout(() => tv.apps.load('usb', 'USB Flash Drive'), 1000);
+tv.apps.load(tv.system.app, true);
+//setTimeout(() => tv.apps.load('usb', 'USB Flash Drive'), 1000);
