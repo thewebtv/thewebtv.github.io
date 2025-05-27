@@ -11,33 +11,36 @@ const Idb =  function(db, name) {
      * @type {{
      * database: IDBDatabase,
      * name: string,
-     * transaction: IDBTransaction,
      * store: IDBObjectStore
      * }}
      */
     this._ = {
         database: db,
         name: name,
-        transaction: db.transaction('idb','readwrite'),
         /**
          * @type {IDBObjectStore}
          */
         store: null
     };
-    this._.store = this._.transaction.objectStore('idb');
 };
 
 Idb.prototype.get = async function (key) {
-    const data = await Idb.HandleRequest(this._.store.get(key));
+    const trans = this._.db.transaction('idb','readwrite');
+    const store = trans.objectStore;
+    const data = await Idb.HandleRequest(store.get(key));
     return data.value;
 };
 
 Idb.prototype.set = async function (key, value) {
-    return await Idb.HandleRequest(this._.store.put(key, value));
+    const trans = this._.db.transaction('idb','readwrite');
+    const store = trans.objectStore;
+    return await Idb.HandleRequest(store.put(key, value));
 };
 
 Idb.prototype.rm = async function (key) {
-    return await Idb.HandleRequest(this._.store.delete(key));
+    const trans = this._.db.transaction('idb','readwrite');
+    const store = trans.objectStore;
+    return await Idb.HandleRequest(store.delete(key));
 };
 
 /**

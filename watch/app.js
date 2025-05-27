@@ -49,22 +49,9 @@ const REQUEST_INPUT_TILES = tv.home.onrequesttiles = async () => {
              * productName: string
              * }[]}
              */
-            const entriesAsync = USBStorageReader.i.fh.keys();
-            const entries = [];
-            // I hate async iterators
-            for await (const key of entriesAsync) entries.push(key);
-            const usedNames = [];
+            const entries = USBStorageReader.i.fh.keys();
             const toBeTiled = [];
-            for await (const key of entriesAsync) {
-                try {
-                    // Helps keep the context clean.
-                    toBeTiled.push(folderName);
-                } catch (error) {
-                    // Separate try-catch so one USB device failing
-                    // doesn't brick all the others.
-                    void(error);
-                }
-            }
+            for await (const key of entries) toBeTiled.push(key);
             toBeTiled.forEach(folderName => {
                 let deviceType = 'usb';
                 if(
