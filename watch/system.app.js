@@ -356,13 +356,13 @@ const tv = {
         openImageFile: async (name) => {
             $usbtextreader.innerText = '';
             document.querySelector('.usb-main').style.display = 'none';
-            document.querySelector('.usb-image-viewer').style.backgroundImage = '';
             document.querySelector('.usb-image-viewer').style.display = '';
+            document.querySelector('.usb-image-viewer img').style.src = 'assets/pixel.png';
             tv.usbdrive.section = 'buffering';
             try {
                 const file = await tv.usbdrive.getFile(name);
                 const furl = tv.usbdrive.objectUrl = URL.createObjectURL(file);
-                document.querySelector('.usb-image-viewer').style.backgroundImage = `url(${furl})`;
+                document.querySelector('.usb-image-viewer img').src = furl;
                 tv.usbdrive.section = 'image-viewer';
             } catch (error) {
                 console.warn(error);

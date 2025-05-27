@@ -320,4 +320,18 @@ html {
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.usb-image-viewer div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.usb-image-viewer img {
+    max-width: 100%;
+    max-height: 100%;
 }
