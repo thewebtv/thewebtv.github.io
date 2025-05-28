@@ -390,7 +390,7 @@ const tv = {
                 ID3Parse.BufferToString(await file.arrayBuffer()).then(text => {
                     /** @type {{title:string,artist:string,album:string}} */
                     let metadata = {};
-                    if(text.slice(0,100).includes('ftypm4A')) {
+                    if(text.slice(0,100).includes('ftypm4A') || true) {
                         // M4A file
                         metadata = ID3Parse.ParseM4A(text);
                     }
