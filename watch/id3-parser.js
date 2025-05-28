@@ -113,7 +113,7 @@ const ID3Parse = {
         // if(sliceEnd < startIndex + 36) return;
         const slice = sliceEnd < sliceStartIndex + 36 ? slice : sliceStart.slice(0, sliceEnd);
         const getProp = (slice) => {
-            return slice.slice(11, 10+slice.slice(4,8).charCodeAt(3)-2);
+            return slice.slice(11, 11+slice.slice(4,8).charCodeAt(3)-2);
         };
         const nameIndex = slice.indexOf('TIT2');
         let artistIndex = slice.indexOf('TPE1');

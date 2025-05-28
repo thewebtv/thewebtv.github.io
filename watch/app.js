@@ -208,8 +208,8 @@ const onbuttonpressedusbreader = ({ key, repeat }) => {
                         cleanPath.push(split[i])
                     }
                 }
-                cleanPath.pop();
-                tv.usbdrive.renderFolder(cleanPath.length > 1 ? cleanPath.join('/') : '');
+                const prev = cleanPath.pop();
+                tv.usbdrive.renderFolder(cleanPath.length > 1 ? cleanPath.join('/') : '', prev);
                 return;
             }
 
@@ -234,8 +234,8 @@ const onbuttonpressedusbreader = ({ key, repeat }) => {
                         cleanPath.push(split[i])
                     }
                 }
-                cleanPath.pop();
-                tv.usbdrive.renderFolder(cleanPath.length > 1 ? cleanPath.join('/') : '');
+                const prev = cleanPath.pop();
+                tv.usbdrive.renderFolder(cleanPath.length > 1 ? cleanPath.join('/') : '', prev);
             }
         }
     } else if(tv.usbdrive.section === 'text') {
@@ -338,69 +338,4 @@ if('showDirectoryPicker' in window && 'indexedDB' in window) {
 }
 
 
-if(tv.system.hls && false) {
-    // Unused, kept for archival purposes
-    tv.system.hls.on(
-        Hls.Events.CUES_PARSED,
-        /**
-         * 
-         * @param {*} event 
-         * @param {{cues:VTTCue[]}} data 
-         */
-        (event, data) => {
-            if(data.cues && Array.isArray(data.cues)) {
-                data.cues.forEach(cue => {
-                    cue.forEach(tv.live.captions.cues.push(cue));
-                });
-            } else if(data.cues instanceof VTTCue) {
-                tv.live.captions.cues.push(data.cues);
-            }
-        }
-    );
-}
-
-$livevideo.ontimeupdate = function () {
-    if(tv.system.app != 'live-tv') return;
-    if(!tv.live.captions.enabled()) return;
-    const cap = document.querySelector('.live-captions'); // bug fix #9,001
-    /**
-     * @type {VTTCue}
-     */
-    try {
-        let track = null;
-        let SWFE = Array.from($livevideo.textTracks);
-        for(let q = 0; q < SWFE.length; q++) {
-            if(SWFE[q].cues) {
-                track = q;
-                break;
-            }
-        }
-        if(typeof track != 'number') return cap.querySelector('p').innerText = '';
-        const ktime = $livevideo.currentTime;
-        const cues = Array.from(SWFE[track].cues).filter(kcue => {
-            return ktime >= kcue.startTime && ktime <= kcue.endTime
-        }).sort((a, b) => a.line - b.line);
-        let cueText = [];
-        cues.forEach(kcue => {
-            // Okay, WebVTT is REALLY starting to piss
-            // me off at this point!
-            const k = document.createElement('div');
-            k.appendChild(kcue.getCueAsHTML());
-            cueText.push(k.innerHTML);
-        });
-        const cue = cues[0] || null;
-        /** @type {number} */
-        /** @type {HTMLDivElement}  */
-        if(!cue) return cap.querySelector('p').innerText = '';
-        cap.className = cue.align === 'left' ? 'live-captions align-left' : (
-            cue.align === 'right' ? 'live-captions align-right' : 'live-captions'
-        );
-        cap.querySelector('p').innerHTML = cueText.join('<br/>');
-    } catch (error) {
-        cap.querySelector('p').innerText = '';
-    }
-};
-
-
 tv.apps.load(tv.system.app, true);
-//setTimeout(() => tv.apps.load('usb', 'USB Flash Drive'), 1000);

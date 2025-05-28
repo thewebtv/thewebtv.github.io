@@ -232,7 +232,7 @@ const tv = {
             }
             tv.usbdrive.kfh = khf;
         },
-        renderFolder: async (path) => {
+        renderFolder: async (path, previousPath) => {
             document.querySelector('.usb-main-content').innerText = '';
             if(!path.endsWith('/')) path += '/';
             tv.usbdrive.path = path;
@@ -257,6 +257,7 @@ const tv = {
                 }
             });
             const kf = [];
+            let previousPathId;
             if(tv.usbdrive.path != '/') {
                 const backButton = tv.usbdrive.createIconForFile('..', 'f-up.png');
                 document.querySelector('.usb-main-content').appendChild(backButton);
@@ -267,6 +268,7 @@ const tv = {
                 const name = entryDetails.key;
                 const entry = entryDetails.value;
                 kf.push(entry);
+                if(name === previousPath) previousPathId = i;
                 const endingSpliiter = name.toLowerCase().split('.');
                 const ending = endingSpliiter[endingSpliiter.length - 1];
                 let icon = 'file';
@@ -290,6 +292,7 @@ const tv = {
                 document.querySelector('.usb-main-content').appendChild(button);
             });
             tv.usbdrive.kf = kf;
+            if(previousPath && typeof previousPathId === 'number') tv.usbdrive.focusFileButton(previousPathId), tv.usbdrive.sfi = previousPathId;
         },
         createIconForFile: (name, icon) => {
             const cont = document.createElement('div');
@@ -387,24 +390,28 @@ const tv = {
                 const furl = tv.usbdrive.objectUrl = URL.createObjectURL(file);
                 $usbvideo.src = furl;
                 $usbvideo.play();
-                ID3Parse.BufferToString(await file.arrayBuffer()).then(async text => {
-                    let metadata = ID3Parse.Types.NullMetadata();
-                    // M4A files
-                    if(name.toLowerCase().endsWith('.m4a')) {
-                        metadata = await ID3Parse.ParseM4A(text);
-                    } else if(text.startsWith('ID3')) {
-                        metadata = await ID3Parse.ParseID3(text);
-                    }
-                    if(metadata.title) {
-                        $usbaudiotitle.innerText = metadata.title;
-                    }
-                    if(metadata.artist) {
-                        $usbaudioartist.innerText = metadata.artist;
-                    }
-                    if(metadata.album) {
-                        $usbaudioalbum.innerText = metadata.album;
-                    }
-                }).catch(error => alert(error));
+                const buffer = await file.arrayBuffer();
+                const limit = 1024 * 1024 * 15; 
+                if(buffer.byteLength <= limit) {
+                    ID3Parse.BufferToString(buffer).then(async text => {
+                        let metadata = ID3Parse.Types.NullMetadata();
+                        // M4A files
+                        if(name.toLowerCase().endsWith('.m4a')) {
+                            metadata = await ID3Parse.ParseM4A(text);
+                        } else if(text.startsWith('ID3')) {
+                            metadata = await ID3Parse.ParseID3(text);
+                        }
+                        if(metadata.title) {
+                            $usbaudiotitle.innerText = metadata.title;
+                        }
+                        if(metadata.artist) {
+                            $usbaudioartist.innerText = metadata.artist;
+                        }
+                        if(metadata.album) {
+                            $usbaudioalbum.innerText = metadata.album;
+                        }
+                    }).catch(error => alert(error));
+                }
                 tv.usbdrive.section = 'audio';
             } catch (error) {
                 console.warn(error);
