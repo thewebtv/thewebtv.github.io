@@ -224,6 +224,8 @@ const onbuttonpressedusbreader = ({ key, repeat }) => {
                 tv.usbdrive.openImageFile(entry.name);
             } else if('mp3,m4a,wav'.split(',').includes(ending)) {
                 tv.usbdrive.openAudioFile(entry.name);
+            } else if('mp4,mov,webm,m4v'.split(',').includes(ending)) {
+                tv.usbdrive.openVideoFile(entry.name);
             }
         } else if(key === 'exit') {
             if(tv.usbdrive.path != '/') {
@@ -273,6 +275,18 @@ const onbuttonpressedusbreader = ({ key, repeat }) => {
         } else if(key === 'ok') {
             if($usbaudiovideo.paused) $usbaudiovideo.play();
             else $usbaudiovideo.pause();
+        }
+    } else if(tv.usbdrive.section === 'video') {
+        if(key === 'exit') {
+            URL.revokeObjectURL(tv.usbdrive.objectUrl);
+            if(!$usbvideo.paused) $usbvideo.pause();
+            tv.usbdrive.objectUrl = '';
+            document.querySelector('.usb-video').style.display = 'none';
+            document.querySelector('.usb-main').style.display = '';
+            tv.usbdrive.section = 'browse';
+        } else if(key === 'ok') {
+            if($usbvideo.paused) $usbvideo.play();
+            else $usbvideo.pause();
         }
     }
 }
@@ -368,4 +382,4 @@ $usbaudiovideo.ontimeupdate = () => {
 };
 
 
-tv.apps.load(tv.system.app, false);
+tv.apps.load(tv.system.app, true);

@@ -302,12 +302,8 @@ const tv = {
                     icon = 'f-audio';
                 } else if('png,jpg,jpeg,gif'.split(',').includes(ending)) {
                     icon = 'f-image';
-                } else if('txt,md'.split(',').includes(ending)) {
+                } else if('txt'.split(',').includes(ending)) {
                     icon = 'f-doc';
-                } else if('zip,7z'.split(',').includes(ending)) {
-                    icon = 'f-package';
-                } else if('deb,exe,appimage'.split(',').includes(ending)) {
-                    icon = 'f-app';
                 }
                 const button = tv.usbdrive.createIconForFile(name, icon + '.png');
                 if(i < 1 && tv.usbdrive.path == '/') button.querySelector('.usb-file').classList.add('usb-file-active');
@@ -446,6 +442,24 @@ const tv = {
                 console.warn(error);
                 document.querySelector('.usb-main').style.display = '';
                 document.querySelector('.usb-audio').style.display = 'none';
+                tv.usbdrive.section = 'browse';
+                tv.usbdrive.renderFolder(tv.usbdrive.path);
+            }
+        },
+        openVideoFile: async (name) => {
+            document.querySelector('.usb-main').style.display = 'none';
+            document.querySelector('.usb-video').style.display = 'flex';
+            tv.usbdrive.section = 'buffering';
+            try {
+                const file = await tv.usbdrive.getFile(name);
+                const furl = tv.usbdrive.objectUrl = URL.createObjectURL(file);
+                $usbvideo.src = furl;
+                $usbvideo.play();
+                tv.usbdrive.section = 'video';
+            } catch (error) {
+                console.warn(error);
+                document.querySelector('.usb-main').style.display = '';
+                document.querySelector('.usb-video').style.display = 'none';
                 tv.usbdrive.section = 'browse';
                 tv.usbdrive.renderFolder(tv.usbdrive.path);
             }
