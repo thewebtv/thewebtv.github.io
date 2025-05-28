@@ -387,12 +387,12 @@ const tv = {
                 const furl = tv.usbdrive.objectUrl = URL.createObjectURL(file);
                 $usbvideo.src = furl;
                 $usbvideo.play();
-                ID3Parse.BufferToString(await file.arrayBuffer()).then(text => {
+                ID3Parse.BufferToString(await file.arrayBuffer()).then(async text => {
                     /** @type {{title:string,artist:string,album:string}} */
                     let metadata = {};
-                    if(text.slice(0,100).includes('ftypm4A') || true) {
+                    if(true) {
                         // M4A file
-                        metadata = ID3Parse.ParseM4A(text);
+                        metadata = await ID3Parse.ParseM4A(text);
                     }
                     if(metadata.title) {
                         $usbaudiotitle.innerText = metadata.title;

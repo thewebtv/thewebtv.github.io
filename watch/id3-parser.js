@@ -1,26 +1,61 @@
 const ID3Parse = {
     /**
-     * 
+     * (Internal) Converts an ArrayBuffer to a string of comma-separated bytes.
      * @param {ArrayBuffer|Uint8Array} buffer 
      * @returns {Promise<string>}
+     * @private
      */
     BufferToString: async function (buffer) {
         const array = buffer instanceof Uint8Array ? Array.from(buffer) : Array.from(new Uint8Array(buffer));
-        for(var i = 0; i < array.length; i++) {
-            const og = array[i];
-            array[i] = String.fromCharCode(og);
+        return array.join(',');
+    },
+    /**
+     * 
+     * @param {string} cleanedBuffer 
+     */
+    CleanedBufferToReadableString: async function (cleanedBuffer) {
+        let output = '';
+        const bytes = cleanedBuffer.split(',');
+        for(let i = 0; i < bytes.length; i++) {
+            output += String.fromCharCode(Number(bytes[i]));
         }
-        return array.join('');
+        return output;
+    },
+    /**
+     * (Internal) Converts a raw string to a string of comma-separated bytes.
+     * @param {string} text 
+     * @private
+     */
+    TextToBytes: async function (text) {
+        const bytes = [];
+        for(let i = 0; i < text.length; i++) {
+            bytes.push(text.charCodeAt(i));
+        }
+        return bytes;
+    },
+    /**
+     * (Internal) Searches for a string inside of a buffer.
+     * @param {ArrayBuffer|Uint8Array|string} convertedOrRawBuffer 
+     * @param {string} substring 
+     * @private
+     */
+    SearchBuffer: async function (convertedOrRawBuffer, substring) {
+        if(typeof convertedOrRawBuffer != 'string') {
+            convertedOrRawBuffer = await ID3Parse.BufferToString(convertedOrRawBuffer);
+        }
+        const text = await ID3Parse.TextToBytes(substring);
+        return convertedOrRawBuffer.indexOf(text);
     },
     /**
      * 
      * @param {string} data 
      */
-    ParseM4A: function (data) {
+    ParseM4A: async function (data) {
         const sliceStart = data.slice(
-            data.indexOf('nam\u0000\u0000\u0000'),
+            await ID3Parse.SearchBuffer(data, 'nam\u0000\u0000\u0000'),
         );
-        const slice = sliceStart.slice(0, sliceStart.indexOf('\u0000trkn'));
+        const rawSliceData = sliceStart.slice(0, await ID3Parse.SearchBuffer(sliceStart, 'trkn'));
+        const slice = await ID3Parse.CleanedBufferToReadableString(rawSliceData);
         const indicatorSplit = slice.split('\u0001').join('\u0000').split('\u0000');
         let mode = 'getName';
         let prop = {};
