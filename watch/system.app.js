@@ -392,6 +392,7 @@ const tv = {
                     let metadata = {};
                     if(text.slice(0,100).includes('ftypm4A') || true) {
                         // M4A file
+                        //
                         metadata = ID3Parse.ParseM4A(text);
                     }
                     if(metadata.title) {
