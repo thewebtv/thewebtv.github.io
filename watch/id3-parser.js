@@ -1,62 +1,27 @@
 const ID3Parse = {
     /**
-     * (Internal) Converts an ArrayBuffer to a string of comma-separated bytes.
+     * 
      * @param {ArrayBuffer|Uint8Array} buffer 
      * @returns {Promise<string>}
-     * @private
      */
     BufferToString: async function (buffer) {
         const array = buffer instanceof Uint8Array ? Array.from(buffer) : Array.from(new Uint8Array(buffer));
-        return array.join(',');
-    },
-    /**
-     * 
-     * @param {string} cleanedBuffer 
-     */
-    CleanedBufferToReadableString: async function (cleanedBuffer) {
-        let output = '';
-        const bytes = cleanedBuffer.split(',');
-        for(let i = 0; i < bytes.length; i++) {
-            output += String.fromCharCode(Number(bytes[i]));
+        for(var i = 0; i < array.length; i++) {
+            const og = array[i];
+            array[i] = String.fromCharCode(og);
         }
-        return output;
+        return array.join('');
     },
     /**
-     * (Internal) Converts a raw string to a string of comma-separated bytes.
-     * @param {string} text 
-     * @private
-     */
-    TextToBytes: async function (text) {
-        const bytes = [];
-        for(let i = 0; i < text.length; i++) {
-            bytes.push(text.charCodeAt(i));
-        }
-        return bytes;
-    },
-    /**
-     * (Internal) Searches for a string inside of a buffer.
-     * @param {ArrayBuffer|Uint8Array|string} convertedOrRawBuffer 
-     * @param {string} substring 
-     * @private
-     */
-    SearchBuffer: async function (convertedOrRawBuffer, substring) {
-        if(typeof convertedOrRawBuffer != 'string') {
-            convertedOrRawBuffer = await ID3Parse.BufferToString(convertedOrRawBuffer);
-        }
-        const text = await ID3Parse.TextToBytes(substring);
-        return convertedOrRawBuffer.indexOf(text);
-    },
-    /**
-     * Parses the metadata from an M4A file.
-     * @param {ArrayBuffer|Uint8Array|string} data 
+     * Parses metadata out of an M4A file.
+     * @param {Buffer|Uint8Array|string} data 
      */
     ParseM4A: async function (data) {
         if(typeof data != 'string') data = await ID3Parse.BufferToString(data);
         const sliceStart = data.slice(
-            await ID3Parse.SearchBuffer(data, 'nam\u0000\u0000\u0000'),
+            data.indexOf('nam\u0000\u0000\u0000'),
         );
-        const rawSliceData = sliceStart.slice(0, await ID3Parse.SearchBuffer(sliceStart, 'trkn'));
-        const slice = await ID3Parse.CleanedBufferToReadableString(rawSliceData);
+        const slice = sliceStart.slice(0, sliceStart.indexOf('\u0000trkn'));
         const indicatorSplit = slice.split('\u0001').join('\u0000').split('\u0000');
         let mode = 'getName';
         let prop = {};
@@ -92,17 +57,5 @@ const ID3Parse = {
             }
         });
         return m;
-    },
-    /**
-     * Parse the metadata from an MP3 file.
-     * @param {ArrayBuffer|Uint8Array|string} data 
-     */
-    ParseMP3: async function (data) {
-        if(typeof data != 'string') data = await ID3Parse.BufferToString(data);
-        const sliceStart = data.slice(
-            await ID3Parse.SearchBuffer(data, 'nam\u0000\u0000\u0000'),
-        );
-        const rawSliceData = sliceStart.slice(0, await ID3Parse.SearchBuffer(sliceStart, 'trkn'));
-        const slice = await ID3Parse.CleanedBufferToReadableString(rawSliceData);
     }
 }
