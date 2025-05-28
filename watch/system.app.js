@@ -316,6 +316,7 @@ const tv = {
         },
         stop: () => {
             if(!$usbvideo.paused) $usbvideo.pause();
+            if(!$usbaudiovideo.paused) $usbaudiovideo.pause();
             document.querySelector('.usb-main').style.display = 'none';
             document.querySelector('.usb-video').style.display = 'none';
             document.querySelector('.usb-main-content').innerText = '';
@@ -381,7 +382,9 @@ const tv = {
             }
         },
         openAudioFile: async (name) => {
-            $usbtextreader.innerText = '';
+            $usbaudiorwbutton.className = 'usb-audio-control';
+            $usbaudioplaybutton.className = 'usb-audio-control usb-audio-control-active';
+            $usbaudioffbutton.className = 'usb-audio-control';
             document.querySelector('.usb-main').style.display = 'none';
             document.querySelector('.usb-audio').style.display = 'flex';
             $usbaudiotitle.innerText = name;
@@ -392,8 +395,8 @@ const tv = {
             try {
                 const file = await tv.usbdrive.getFile(name);
                 const furl = tv.usbdrive.objectUrl = URL.createObjectURL(file);
-                $usbvideo.src = furl;
-                $usbvideo.play();
+                $usbaudiovideo.src = furl;
+                $usbaudiovideo.play();
                 const buffer = await file.arrayBuffer();
                 const limit = 1024 * 1024 * 15; 
                 if(buffer.byteLength <= limit) {

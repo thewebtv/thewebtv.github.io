@@ -265,14 +265,14 @@ const onbuttonpressedusbreader = ({ key, repeat }) => {
     } else if(tv.usbdrive.section === 'audio') {
         if(key === 'exit') {
             URL.revokeObjectURL(tv.usbdrive.objectUrl);
-            if(!$usbvideo.paused) $usbvideo.pause();
+            if(!$usbaudiovideo.paused) $usbaudiovideo.pause();
             tv.usbdrive.objectUrl = '';
             document.querySelector('.usb-audio').style.display = 'none';
             document.querySelector('.usb-main').style.display = '';
             tv.usbdrive.section = 'browse';
         } else if(key === 'ok') {
-            if($usbvideo.paused) $usbvideo.play();
-            else $usbvideo.pause();
+            if($usbaudiovideo.paused) $usbaudiovideo.play();
+            else $usbaudiovideo.pause();
         }
     }
 }
@@ -337,5 +337,15 @@ if('showDirectoryPicker' in window && 'indexedDB' in window) {
     });
 }
 
+$usbaudiovideo.onplay = () => {
+    $usbaudioplaybuttonpauseicon.style.display = '';
+    $usbaudioplaybuttonplayicon.style.display = 'none';
+};
 
-tv.apps.load(tv.system.app, true);
+$usbaudiovideo.onpause = () => {
+    $usbaudioplaybuttonpauseicon.style.display = 'none';
+    $usbaudioplaybuttonplayicon.style.display = '';
+};
+
+
+tv.apps.load(tv.system.app, fals);

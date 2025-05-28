@@ -52,6 +52,15 @@
                         <p class='usb-audio-album' id='usbaudiotitle'></p>
                         <p class='usb-audio-title' id='usbaudioartist'></p>
                     </div>
+                    <div class='usb-audio-controls'>
+                        <div class='usb-audio-control' id='usbaudiorwbutton'></div>
+                        <div class='usb-audio-control usb-audio-control-active' id='usbaudioplaybutton'>
+                            <svg id='usbaudioplaybuttonplayicon' version="1.1" viewBox="0.0 0.0 48.0 48.0" fill="none" stroke="none" stroke-linecap="square" stroke-miterlimit="10" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><clipPath id="p.0"><path d="m0 0l48.0 0l0 48.0l-48.0 0l0 -48.0z" clip-rule="nonzero"/></clipPath><g clip-path="url(#p.0)"><path fill="#000000" fill-opacity="0.0" d="m0 0l48.0 0l0 48.0l-48.0 0z" fill-rule="evenodd"/><path fill="#000000" d="m7.8425198 0.9133858l40.15748 23.086615l-40.15748 23.086613z" fill-rule="evenodd"/></g></svg>
+                            <svg id='usbaudioplaybuttonpauseicon' style='display: none;' version="1.1" viewBox="0.0 0.0 48.0 48.0" fill="none" stroke="none" stroke-linecap="square" stroke-miterlimit="10" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg"><clipPath id="p.0"><path d="m0 0l48.0 0l0 48.0l-48.0 0l0 -48.0z" clip-rule="nonzero"/></clipPath><g clip-path="url(#p.0)"><path fill="#000000" fill-opacity="0.0" d="m0 0l48.0 0l0 48.0l-48.0 0z" fill-rule="evenodd"/><path fill="#000000" d="m0 4.745475l0 0c0 -2.6208534 2.1246214 -4.745475 4.745475 -4.745475l6.6980267 0l0 0c1.2585783 0 2.4656086 0.4999682 3.3555574 1.3899174c0.88994884 0.8899491 1.3899174 2.0969791 1.3899174 3.3555574l0 38.50905c0 2.6208534 -2.1246214 4.745476 -4.745475 4.745476l-6.6980267 0c-2.6208534 0 -4.745475 -2.1246223 -4.745475 -4.745476z" fill-rule="evenodd"/><path fill="#000000" d="m31.811024 4.745475l0 0c0 -2.6208534 2.1246223 -4.745475 4.745476 -4.745475l6.6980247 0l0 0c1.2585793 0 2.4656105 0.4999682 3.3555603 1.3899174c0.889946 0.8899491 1.3899155 2.0969791 1.3899155 3.3555574l0 38.50905c0 2.6208534 -2.1246223 4.745476 -4.745476 4.745476l-6.6980247 0c-2.6208534 0 -4.745476 -2.1246223 -4.745476 -4.745476z" fill-rule="evenodd"/></g></svg>
+                        </div>
+                        <div class='usb-audio-control' id='usbaudioffbutton'></div>
+                    </div>
+                    <video style='display: none' id='usbaudiovideo'></video>
                 </div>
                 <div class='usb-video' style='display:none'>
                     <video id='usbvideo' class='content-player'></video>
