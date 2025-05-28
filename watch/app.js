@@ -209,7 +209,7 @@ const onbuttonpressedusbreader = ({ key, repeat }) => {
                     }
                 }
                 const prev = cleanPath.pop();
-                tv.usbdrive.renderFolder(cleanPath.length > 1 ? cleanPath.join('/') : '', prev);
+                tv.usbdrive.renderFolder(cleanPath.length >= 1 ? cleanPath.join('/')+'/' : '', prev);
                 return;
             }
 
@@ -235,7 +235,7 @@ const onbuttonpressedusbreader = ({ key, repeat }) => {
                     }
                 }
                 const prev = cleanPath.pop();
-                tv.usbdrive.renderFolder(cleanPath.length > 1 ? cleanPath.join('/') : '', prev);
+                tv.usbdrive.renderFolder(cleanPath.length >= 1 ? cleanPath.join('/')+'/' : '', prev);
             }
         }
     } else if(tv.usbdrive.section === 'text') {

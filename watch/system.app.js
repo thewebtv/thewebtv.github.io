@@ -292,7 +292,11 @@ const tv = {
                 document.querySelector('.usb-main-content').appendChild(button);
             });
             tv.usbdrive.kf = kf;
-            if(previousPath && typeof previousPathId === 'number') tv.usbdrive.focusFileButton(previousPathId), tv.usbdrive.sfi = previousPathId;
+            if(previousPath && typeof previousPathId === 'number') {
+                if(path != '/') previousPathId += 1;
+                tv.usbdrive.focusFileButton(previousPathId);
+                tv.usbdrive.sfi = previousPathId;
+            }
         },
         createIconForFile: (name, icon) => {
             const cont = document.createElement('div');
