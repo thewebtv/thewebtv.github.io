@@ -47,10 +47,11 @@ const ID3Parse = {
         return convertedOrRawBuffer.indexOf(text);
     },
     /**
-     * 
-     * @param {string} data 
+     * Parses the metadata from an M4A file.
+     * @param {ArrayBuffer|Uint8Array|string} data 
      */
     ParseM4A: async function (data) {
+        if(typeof data != 'string') data = await ID3Parse.BufferToString(data);
         const sliceStart = data.slice(
             await ID3Parse.SearchBuffer(data, 'nam\u0000\u0000\u0000'),
         );
@@ -91,5 +92,17 @@ const ID3Parse = {
             }
         });
         return m;
+    },
+    /**
+     * Parse the metadata from an MP3 file.
+     * @param {ArrayBuffer|Uint8Array|string} data 
+     */
+    ParseMP3: async function (data) {
+        if(typeof data != 'string') data = await ID3Parse.BufferToString(data);
+        const sliceStart = data.slice(
+            await ID3Parse.SearchBuffer(data, 'nam\u0000\u0000\u0000'),
+        );
+        const rawSliceData = sliceStart.slice(0, await ID3Parse.SearchBuffer(sliceStart, 'trkn'));
+        const slice = await ID3Parse.CleanedBufferToReadableString(rawSliceData);
     }
 }

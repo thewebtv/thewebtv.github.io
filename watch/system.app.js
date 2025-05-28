@@ -387,23 +387,27 @@ const tv = {
                 const furl = tv.usbdrive.objectUrl = URL.createObjectURL(file);
                 $usbvideo.src = furl;
                 $usbvideo.play();
-                ID3Parse.BufferToString(await file.arrayBuffer()).then(async text => {
-                    /** @type {{title:string,artist:string,album:string}} */
-                    let metadata = {};
-                    if(true) {
-                        // M4A file
-                        metadata = await ID3Parse.ParseM4A(text);
-                    }
-                    if(metadata.title) {
-                        $usbaudiotitle.innerText = metadata.title;
-                    }
-                    if(metadata.artist) {
-                        $usbaudioartist.innerText = metadata.artist;
-                    }
-                    if(metadata.album) {
-                        $usbaudioalbum.innerText = metadata.album;
-                    }
-                });
+                const arrayBuffer = await file.arrayBuffer();
+                // Files that are too big crash the parser
+                if(arrayBuffer.byteLength < 5243000) {
+                    ID3Parse.BufferToString().then(async text => {
+                        /** @type {{title:string,artist:string,album:string}} */
+                        let metadata = {};
+                        if(true) {
+                            // M4A file
+                            metadata = await ID3Parse.ParseM4A(text);
+                        }
+                        if(metadata.title) {
+                            $usbaudiotitle.innerText = metadata.title;
+                        }
+                        if(metadata.artist) {
+                            $usbaudioartist.innerText = metadata.artist;
+                        }
+                        if(metadata.album) {
+                            $usbaudioalbum.innerText = metadata.album;
+                        }
+                    });
+                }
                 tv.usbdrive.section = 'audio';
             } catch (error) {
                 console.warn(error);
