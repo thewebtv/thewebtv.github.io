@@ -347,5 +347,25 @@ $usbaudiovideo.onpause = () => {
     $usbaudioplaybuttonplayicon.style.display = '';
 };
 
+$usbaudiovideo.ontimeupdate = () => {
+    const kt = Math.floor($usbaudiovideo.currentTime);
+    const ft = Math.floor($usbaudiovideo.duration);
+    let km = 0;
+    let ks = 0;
+    for(let ki = 0; ki < kt; ki++) {
+        ks += 1;
+        if(ks >= 60) ks = 0, km++;
+    }
+    $usbaudioposition.innerText = `${km}:${ks<10?`0${ks}`:ks}`;
+    let fm = 0;
+    let fs = 0;
+    for(let fi = 0; fi < ft; fi++) {
+        fs += 1;
+        if(fs >= 60) fs = 0, fm++;
+    }
+    $usbaudioduration.innerText = `${fm}:${fs<10?`0${fs}`:fs}`;
+    $usbaudiopositiontrack.style.width = `calc(${($usbaudiovideo.currentTime/$usbaudiovideo.duration)*100}%)`;
+};
 
-tv.apps.load(tv.system.app, fals);
+
+tv.apps.load(tv.system.app, false);

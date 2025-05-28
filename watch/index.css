@@ -399,3 +399,33 @@ html {
 .usb-audio-control-active svg * {
     fill: white;
 }
+
+.usb-audio-timer {
+    width: calc(100% - 16px);
+    padding: 8px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.usb-audio-time, .usb-audio-duration {
+    font-size: 22px;
+    text-align: center;
+    width: 100px;
+    padding: 8px 16px;
+}
+
+.usb-audio-timer-slider {
+    margin-top: 10px;
+    width: calc(100% - 64px - 44px - 300px);
+    height: 22px;
+    border-radius: 50px;
+    background-color: rgb(42, 42, 42);
+    overflow: hidden;
+}
+
+.usb-audio-timer-progress {
+    height: 100%;
+    background-color: rgb(60, 129, 239);
+    transition: 200ms linear;
+}
