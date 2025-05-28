@@ -388,11 +388,12 @@ const tv = {
                 $usbvideo.src = furl;
                 $usbvideo.play();
                 ID3Parse.BufferToString(await file.arrayBuffer()).then(async text => {
-                    /** @type {{title:string,artist:string,album:string}} */
-                    let metadata = {};
-                    if(true) {
-                        // M4A file
+                    let metadata = ID3Parse.Types.NullMetadata();
+                    // M4A files
+                    if(text.includes('ftypeM4A')) {
                         metadata = await ID3Parse.ParseM4A(text);
+                    } else if(text.startsWith('ID3')) {
+                        metadata = await ID3Parse.ParseID3(text);
                     }
                     if(metadata.title) {
                         $usbaudiotitle.innerText = metadata.title;
@@ -403,7 +404,7 @@ const tv = {
                     if(metadata.album) {
                         $usbaudioalbum.innerText = metadata.album;
                     }
-                });
+                }).catch(error => alert(error));
                 tv.usbdrive.section = 'audio';
             } catch (error) {
                 console.warn(error);
