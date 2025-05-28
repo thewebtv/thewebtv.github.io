@@ -203,6 +203,28 @@ const tv = {
          */
         kf: [],
         start: async (id) => {
+            if(id.toLowerCase() === 'ipod' || id.toLowerCase().endsWith('ipod')) {
+                $usbmainheaderimg.src = 'assets/ipod.png';
+            } else if(
+                [
+                    'GOPROSD',
+                    'HERO4 Black',
+                    'HERO5 Black',
+                    'HERO6 Black',
+                    'HERO7 Black',
+                    'HERO8 Black',
+                    'HERO9 Black',
+                    'HERO10 Black',
+                    'HERO11 Black',
+                    'HERO11 Black Mini',
+                    'HERO12 Black',
+                    'HERO13 Black'
+                ].includes(id)
+            ) {
+                $usbmainheaderimg.src = 'assets/camera.png';
+            } else {
+                $usbmainheaderimg.src = 'assets/usb.png';
+            }
             tv.usbdrive.root = id;
             try {
                 tv.usbdrive.fh = await USBStorageReader.i.fh.getDirectoryHandle(id, {
