@@ -112,59 +112,27 @@ const ID3Parse = {
         const sliceEnd = sliceStartIndex + 100000 //sliceStart.indexOf('\u00FF\u00FE\u0000\u0000\u00FF');
         // if(sliceEnd < startIndex + 36) return;
         const slice = sliceEnd < sliceStartIndex + 36 ? slice : sliceStart.slice(0, sliceEnd);
-        const prop = {};
-        let key = '';
-        let mode = 'getName';
-        let value = '';
-        let length = 0;
-        for(let i = 0; i < slice.length; i++) {
-            if(mode === 'getName') {
-                if(slice.charCodeAt(i) < 0x20) break;
-                key = slice.slice(i, i + 4);
-                mode = 'getValue';
-                value = '';
-                length = '';
-                for(let j = 0; j < 4; j++) {
-                    length += slice.slice(i+4,i+8).charCodeAt(j).toString(16).length === 1 ? 
-                        '0' + slice.slice(i+4,i+8).charCodeAt(j).toString(16) : slice.slice(i+4,i+8).charCodeAt(j).toString(16);
-                }
-                length = Number(`0x${length}`) - 2;
-                if(key === 'USLT') mode = 'getLyrics';
-                i += 10;
-            } else if(mode === 'getLyrics') {
-                value += [i];
-                if(slice.slice(i).indexOf('\u0000\u0000\u0000') === 0) {
-                    prop[key] = value;
-                    value = key = '';
-                    mode = 'waitUntilName';
-                }
-            } else if(mode === 'getValue') {
-                value = slice.slice(i, i + length);
-                prop[key] = value;
-                value = key = '';
-                i += length - 1;
-                mode = 'waitUntilName';
-            } else if(mode === 'waitUntilName') {
-                if(slice[i] !== '\u0000') {
-                    i -= 1;
-                    mode = 'getName';
-                }
-            }
-        }
-        if(key&&value) prop[key] = value;
+        const getProp = (slice) => {
+            return slice.slice(11, 10+slice.slice(4,8).charCodeAt(3)-2);
+        };
+        const nameIndex = slice.indexOf('TIT2');
+        let artistIndex = slice.indexOf('TPE1');
+        if(artistIndex < 0) artistIndex = slice.indexOf('TPE2');
+        const albumIndex = slice.indexOf('TALB');
+        const composerIndex = slice.indexOf('TCOM');
         const m = {};
-        Object.keys(prop).forEach(key => {
-            const value = prop[key];
-            if(key === 'TIT2') {
-                m.title = value;
-            } else if(key === 'TPE1' || key === 'TPE2') {
-                m.artist = value;
-            } else if(key === 'TALB') {
-                m.album = value;
-            } else if(key === 'TCOM') {
-                m.composer = value;
-            }
-        });
+        if(nameIndex > -1) {
+            m.title = getProp(slice.slice(nameIndex));
+        }
+        if(artistIndex > -1) {
+            m.artist = getProp(slice.slice(artistIndex));
+        }
+        if(albumIndex > -1) {
+            m.album = getProp(slice.slice(albumIndex));
+        }
+        if(composerIndex > -1) {
+            m.composer = getProp(slice.slice(composerIndex));
+        }
         return ID3Parse.Types.Metadata(m);
     },
 }
