@@ -20,7 +20,7 @@ const ID3Parse = {
         const sliceStart = data.slice(
             data.indexOf('nam\u0000\u0000\u0000'),
         );
-        const slice = sliceStart.slice(0, sliceStart.indexOf('\u00AA'));
+        const slice = sliceStart.slice(0, sliceStart.indexOf('\u0000trkn'));
         const indicatorSplit = slice.split('\u0001').join('\u0000').split('\u0000');
         let mode = 'getName';
         let prop = {};
