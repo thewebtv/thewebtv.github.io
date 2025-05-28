@@ -18,7 +18,7 @@ const ID3Parse = {
      */
     ParseM4A: function (data) {
         const sliceStart = data.slice(
-            data.indexOf('nam\u0000\u0000\u0000>data'),
+            data.indexOf('nam\u0000\u0000\u0000'),
         );
         const slice = sliceStart.slice(0, sliceStart.indexOf('\u00AA'));
         const indicatorSplit = slice.split('\u0001').join('\u0000').split('\u0000');

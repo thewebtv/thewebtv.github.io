@@ -318,6 +318,7 @@ if('showDirectoryPicker' in window && 'indexedDB' in window) {
         USBStorageReader.i.idb = db;
         try {
             USBStorageReader.i.fh = await USBStorageReader.i.idb.get('EXT_DRIVE_HANDLE');
+            USBStorageReader.i.fh.requestPermission('read');
         } catch (error) {
             void(error);
         }
