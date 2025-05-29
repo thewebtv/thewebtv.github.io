@@ -186,7 +186,7 @@ const ID3Parse = {
      */
     Make7Bits: function (n) {
         let bin = n.toString(2);
-        while(bin.length < 7) bin = '0' + n;
+        while(bin.length < 7) bin = '0' + bin;
         return bin;
     },
     /**
