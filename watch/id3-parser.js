@@ -180,7 +180,17 @@ const ID3Parse = {
         const id3 = data.subarray(10, 10 + length);
         let key = '';
         let value = '';
-        for(let i = 0; i < id3.length; i++) {
+        const tags = [];
+        let tagIndex = -1;
+        for(let z = 0; z < tags.length; z++) {
+            const index = ID3Parse.IndexBuffer(id3, tags[z]);
+            if(index > -1) {
+                tagIndex = index;
+                break;
+            }
+        }
+        if(tagIndex < 0) return [];
+        for(let i = tagIndex; i < id3.length; i++) {
             key = String.fromCharCode(id3[i])+String.fromCharCode(id3[i+1])+String.fromCharCode(id3[i+2])+String.fromCharCode(id3[i+3]);
             i += 4;
             // if(!id3[i]) break;
