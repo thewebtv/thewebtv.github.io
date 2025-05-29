@@ -180,7 +180,26 @@ const ID3Parse = {
         const id3 = data.subarray(10, 10 + length);
         let key = '';
         let value = '';
-        const tags = [];
+        const tags = [
+            'TIT2',
+            'TPE1',
+            'TPE2',
+            'TPE3',
+            'TPE4',
+            'TALB',
+            'TCOM',
+            'TCON',
+            'TBPM',
+            'TKEY',
+            'TLAN',
+            'TPUB',
+            'TPOS',
+            'TRCK',
+            'PCNT',
+            'GEOB',
+            'APIC',
+            'AENC'
+        ];
         let tagIndex = -1;
         for(let z = 0; z < tags.length; z++) {
             const index = ID3Parse.IndexBuffer(id3, tags[z]);
