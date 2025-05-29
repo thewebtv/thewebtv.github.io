@@ -417,14 +417,24 @@ const tv = {
                 $usbaudiovideo.play();
                 const buffer = await file.arrayBuffer();
                 const limit = 1024 * 1024 * 15; 
-                if(buffer.byteLength <= limit && !name.toLowerCase().endsWith('.mp3')) {
+                const uint8 = new Uint8Array(buffer);
+                if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51) {
+                    const metadata = ID3Parse.ParseID3(uint8);
+                    if(metadata.title) {
+                        $usbaudiotitle.innerText = metadata.title;
+                    }
+                    if(metadata.artist) {
+                        $usbaudioartist.innerText = metadata.artist;
+                    }
+                    if(metadata.album) {
+                        $usbaudioalbum.innerText = metadata.album;
+                    }
+                } else if(buffer.byteLength <= limit) {
                     ID3Parse.BufferToString(buffer).then(async text => {
                         let metadata = ID3Parse.Types.NullMetadata();
                         // M4A files
                         if(name.toLowerCase().endsWith('.m4a')) {
                             metadata = await ID3Parse.ParseM4A(text);
-                        } else if(text.startsWith('ID3')) {
-                            metadata = await ID3Parse.ParseID3(text);
                         }
                         if(metadata.title) {
                             $usbaudiotitle.innerText = metadata.title;
@@ -436,18 +446,6 @@ const tv = {
                             $usbaudioalbum.innerText = metadata.album;
                         }
                     }).catch(error => alert(error));
-                } else if(name.toLowerCase().endsWith('.mp3')) {
-                    const uint8 = new Uint8Array(buffer);
-                    const metadata = ID3Parse.ParseID3Experimental(uint8);
-                    if(metadata.title) {
-                        $usbaudiotitle.innerText = metadata.title;
-                    }
-                    if(metadata.artist) {
-                        $usbaudioartist.innerText = metadata.artist;
-                    }
-                    if(metadata.album) {
-                        $usbaudioalbum.innerText = metadata.album;
-                    }
                 }
                 tv.usbdrive.section = 'audio';
             } catch (error) {

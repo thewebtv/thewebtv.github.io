@@ -78,9 +78,9 @@ const ID3Parse = {
     /**
      * 
      * @param {ArrayBuffer|Uint8Array} buffer 
-     * @returns {Promise<string>}
+     * @returns {string}
      */
-    BufferToString: async function (buffer) {
+    BufferToString: function (buffer) {
         const array = buffer instanceof Uint8Array ? Array.from(buffer) : Array.from(new Uint8Array(buffer));
         for(var i = 0; i < array.length; i++) {
             const og = array[i];
@@ -138,8 +138,9 @@ const ID3Parse = {
     /**
      * Parses metadata out of an MP3 file.
      * @param {Buffer|Uint8Array|string} data
+     * @deprecated
      */
-    ParseID3: async function (data) {
+    ParseID3Legacy: async function (data) {
         if(typeof data != 'string') data = await ID3Parse.BufferToString(data);
         const sliceStartIndex = data.slice(0, 100).indexOf('ID3');
         if(sliceStartIndex < 0) return {};
@@ -174,51 +175,51 @@ const ID3Parse = {
      * 
      * @param {Uint8Array} data 
      */
-    ParseID3Experimental: function (data) {
+    ParseID3: function (data) {
         const prop = [];
         const length = ID3Parse.GetLengthOfID3(data.subarray(6, 10));
         const id3 = data.subarray(10, 10 + length);
         let key = '';
         let value = '';
+        let now = Date.now();
         for(let i = 0; i < id3.length; i++) {
             key = String.fromCharCode(id3[i])+String.fromCharCode(id3[i+1])+String.fromCharCode(id3[i+2])+String.fromCharCode(id3[i+3]);
             i += 4;
-            // if(!id3[i]) break;
+            if(typeof id3[i] != 'number') break;
             const size = ID3Parse.GetLengthOfID3(id3.subarray(i, i+4));
             i += 6;
-            // if(!id3[i]) break;
-            for(let j = 0; j < size; j++) {
-                value += String.fromCharCode(id3[i]);
-                i += 1;
-            }
-            if(!value) break;
+            if(typeof id3[i] != 'number') break;
             prop.push({
                 key: key,
-                value: value
+                value: id3.subarray(i, i + size)
             });
+            i += size;
             key = value = '';
             i -= 1;
+            // if(Date.now()-now >= 5000) break;
         }
-        let m = {
-            artist: []
-        };
+        let m = {};
         prop.forEach(({key,value}) => {
             if(key === 'TIT2' && !m.title) {
-                m.title = value.slice(1, -1);
-            } else if(key.slice(0,3) === 'TPE') {
-                m.artist.push(value.slice(1, -1));
+                if(value[1] === 255 && value[2] === 254) {
+                    m.title = (new TextDecoder('utf-16')).decode(value.subarray(3));
+                } else {
+                    m.title = ID3Parse.BufferToString(value).slice(1, -1);
+                }
+            } else if(key.slice(0,3) === 'TPE' && !m.artist) {
+                if(value[1] === 255 && value[2] === 254) {
+                    m.artist = (new TextDecoder('utf-16')).decode(value.subarray(3));
+                } else {
+                    m.artist = ID3Parse.BufferToString(value).slice(1, -1);
+                }
             } else if(key === 'TALB' && !m.album) {
-                m.album = value.slice(1, -1);
+                if(value[1] === 255 && value[2] === 254) {
+                    m.album = (new TextDecoder('utf-16')).decode(value.subarray(3));
+                } else {
+                    m.album = ID3Parse.BufferToString(value).slice(1, -1);
+                }
             }
         });
-        if(m.artist.length === 1) {
-            m.artist = m.artist[0];
-        } else if(m.artist.length === 0) {
-            m.artist = null;
-        } else {
-            const popped = m.artist.pop();
-            m.artist = m.artist.join(', ') + ' & ' + popped;
-        }
         return ID3Parse.Types.Metadata(m);
     },
     /**
