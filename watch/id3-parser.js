@@ -197,6 +197,7 @@ const ID3Parse = {
         let d = '';
         for(let i = 0; i < n.length; i++) {
             d += ID3Parse.Make7Bits(n[i]);
+            alert('test');
         }
         return parseInt(d, 2);
     }
