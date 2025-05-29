@@ -209,6 +209,7 @@ const ID3Parse = {
             }
         }
         if(tagIndex < 0) return [];
+        return id3.subarray(tagIndex);
         for(let i = tagIndex; i < id3.length; i++) {
             key = String.fromCharCode(id3[i])+String.fromCharCode(id3[i+1])+String.fromCharCode(id3[i+2])+String.fromCharCode(id3[i+3]);
             i += 4;
