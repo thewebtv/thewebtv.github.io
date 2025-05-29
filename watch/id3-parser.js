@@ -177,7 +177,7 @@ const ID3Parse = {
     ParseID3Experimental: function (data) {
         const prop = [];
         const length = ID3Parse.GetLengthOfID3(data.slice(6, 10));
-        const id3 = data.slice(10, 10 + length);
+        const id3 = data.slice(10, 10 + 20);
         return id3;
     },
     /**
