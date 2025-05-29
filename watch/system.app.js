@@ -9,10 +9,10 @@ const tv = {
             return localStorage.getItem('tv.system.name') || `My ${Config.Device.Name}`;
         },
         get language() {
-            return localStorage.getItem('tv.system.name') || 'en-US';
+            return locales.current();
         },
         set language(lang) {
-            return localStorage.setItem('tv.system.lang', lang);
+            return localStorage.setItem('tv.system.language', lang);
         },
         app: 'live-tv',
         volume: 30,
@@ -23,7 +23,10 @@ const tv = {
                 video.volume = tv.system.volume / 100;
             });
         },
-        noop: () => { return () => {}; }
+        noop: () => { return () => {}; },
+        wait: (time) => {
+            return new Promise(resolve => setTimeout(_ => resolve(), time));
+        }
     },
     data: {
         /**
@@ -96,6 +99,7 @@ const tv = {
          * @param {number} channelId 
          */
         start: function (channelId) {
+            localStorage.setItem('tv.live.channel', channelId);
             tv.live.captions.cues = [];
             if(typeof channelId === 'number') tv.live.channel = channelId;
             tv.live.stop(); // stop existing things
@@ -350,7 +354,7 @@ const tv = {
         },
         focusFileButton: (id) => {
             const tiles = document.querySelectorAll('.usb-main .usb-file');
-            tv.home.selected = id;
+            tv.usbdrive.sfi = id;
             tiles.forEach((tile, index) => {
                 if(index === id) {
                     tile.className = 'usb-file usb-file-active';
@@ -424,7 +428,8 @@ const tv = {
                 const buffer = await file.arrayBuffer();
                 const limit = 1024 * 1024 * 15; 
                 const uint8 = new Uint8Array(buffer);
-                if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51) {
+                if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51&&uint8[3]===0x03) {
+                    // ID3v2.3.0
                     const metadata = ID3Parse.ParseID3(uint8);
                     if(metadata.title) {
                         $usbaudiotitle.innerText = metadata.title;
@@ -443,6 +448,8 @@ const tv = {
                         }
                         tv.usbdrive.imageObjectUrl = $usbaudioimage.src = metadata.imageURL;
                     }
+                } else if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51&&uint8[3]===0x03) {
+                    // TODO: add support for ID3v2.0.0/ID3v2.2.0
                 } else if(buffer.byteLength <= limit) {
                     ID3Parse.BufferToStringAsync(buffer).then(async text => {
                         let metadata = ID3Parse.Types.NullMetadata();
@@ -564,6 +571,22 @@ const tv = {
             tv.home.__tiles__[id].onclick();
         }
     },
+    onboarding: {
+        seen: () => !!localStorage.getItem('tv.onboarding.seen'),
+        stage: -1,
+        transitioning: false,
+        selectedLanguage: 0,
+        start: async () => {
+            tv.onboarding.stage = 0;
+            tv.system.app = 'onboarding';
+            tv.apps.show('onboarding');
+            const fader = document.querySelector('.onboarding-fader');
+            await tv.system.wait(1000);
+            fader.style.opacity = '0';
+            await tv.system.wait(5245);
+            fader.style.display = 'none';
+        }
+    },
     remote: {
         onbuttonpressed: (event={key:'unknown',source:{id:'',type:'unknown'},data:null}) => {},
         trigger: (event={key:'unknown',source:{id:'',type:'unknown'},data:null}) => {
@@ -571,6 +594,30 @@ const tv = {
                 return tv.remote.onbuttonpressed(event), true;
             } catch (error) {
                 return console.warn(error), false;
+            }
+        },
+        nec: {
+            /**
+             * @param {{key:number|string}} event 
+             */
+            onbuttonpressed: (event={key: 0}) => {},
+            /**
+             * @param {{key:number|string}} event 
+             */
+            onbuttonreleased: (event={key: 0}) => {},
+            press: (event={key:0}) => {
+                try {
+                    return tv.remote.nec.onbuttonpressed(event), true;
+                } catch (error) {
+                    return console.warn(error), false;
+                }
+            },
+            release: (event={key:0}) => {
+                try {
+                    return tv.remote.nec.onbuttonreleased(event), true;
+                } catch (error) {
+                    return console.warn(error), false;
+                }
             }
         }
     },

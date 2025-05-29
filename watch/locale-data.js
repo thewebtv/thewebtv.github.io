@@ -1,4 +1,4 @@
-locales.add('en-US', {
+locales.add('en', {
     tv: {
         live: {
             channelIndicator: (channelNumber) => `Channel ${channelNumber}`,
@@ -14,26 +14,10 @@ locales.add('en-US', {
                 music: "Music",
                 other: "Other"
             }
-        }
-    }
-});
-
-locales.add('ja-JP', {
-    tv: {
-        live: {
-            channelIndicator: (channelNumber) => `チャネル${channelNumber}`,
-            genre: {
-                news: "ニュース",
-                finance: "お金",
-                sports: "スポーツ",
-                movies: "映画",
-                kids: "子供向け",
-                edu: "To be labeled",
-                mystery: "ミステリー",
-                anime: "アニメ",
-                music: "音楽",
-                other: "他のチャネル"
-            }
+        },
+        onboarding: {
+            welcome: 'Welcome',
+            letsgo: 'Let\'s Go'
         }
     }
 });

@@ -15,14 +15,29 @@
     </head>
     <body>
         <div class='app'>
+            <div class='feature fg-onboarding' style='display: none;'>
+                <div class='onboarding-fader'>
+                </div>
+                <div id='onboardingwelcome' class='onboarding-giant-welcome'>
+                    <p>Hello.</p>
+                    <div class='onboarding-giant-welcome-button-container'>
+                        <div id='onboardingwelcomebutton' class='onboarding-giant-welcome-button'>Get Started</div>
+                    </div>
+                </div>
+                <div style='display:none;' id='onboardinglanguage' class='onboarding-languages'>
+                    <p class='onboarding-languages-title'>Select your language</p>
+                    <div id='onboardinglanguagegrid'>
+                    </div>
+                </div>
+            </div>
             <div class='feature fg-live-tv' style='display: none;'>
                 <video id='livevideo' class='content-player'></video>
                 <div class='live-badge' style='display: none;'>
-                    <img class='live-badge-img' src='./channels/abc.png' />
+                    <img class='live-badge-img' />
                     <div class='live-badge-labels'>
-                        <p class='live-badge-index'>Channel 1</p>
-                        <p class='live-badge-channel'>ABC News</p>
-                        <p class='live-badge-category'>News</p>
+                        <p class='live-badge-index'></p>
+                        <p class='live-badge-channel'></p>
+                        <p class='live-badge-category'></p>
                     </div>
                 </div>
                 <div class='live-captions'>

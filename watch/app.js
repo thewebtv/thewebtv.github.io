@@ -1,7 +1,8 @@
-tv.remote.onbuttonpressed = function (event={key:'unknown',source:{id:'',type:'unknown'},data:null}) {
+tv.remote.onbuttonpressed = function (event={key:'unknown',repeat:Boolean,source:{id:'',type:'unknown'},data:null}) {
     if(event.key === 'volup') return tv.volume.up();
     if(event.key === 'voldown') return tv.volume.down();
     if(event.key === 'mute') return tv.volume.mute();
+    if(tv.system.app === 'onboarding') return onbuttonpressedonboarding(event);
     if(event.key === 'home') {
         if(tv.home.changing) return;
         if(tv.home.open) return tv.home.hide();
@@ -293,6 +294,106 @@ const onbuttonpressedusbreader = ({ key, repeat }) => {
     }
 }
 
+const onbuttonpressedonboarding = async (event={key:'',repeat:false}) => {
+    if(event.repeat) return;
+    if(tv.onboarding.transitioning) return;
+    if(tv.onboarding.stage === 0) {
+        if(event.key === 'ok') {
+            tv.onboarding.transitioning = true;
+            tv.onboarding.stage = 1;
+            $onboardingwelcomebutton.style.transform = 'scale(0.8)';
+            await tv.system.wait(110);
+            $onboardingwelcomebutton.style.transform = 'scale(1.45)';
+            await tv.system.wait(110);
+            $onboardingwelcomebutton.style.transform = 'scale(1)';
+            await tv.system.wait(300);
+            $onboardingwelcome.style.opacity = '0';
+            await tv.system.wait(325);
+            $onboardingwelcome.style.display = 'none';
+            $onboardinglanguage.style.opacity = '0';
+            $onboardinglanguage.style.display = '';
+            tv.onboarding.selectedLanguage = 0;
+            locales.list().forEach((iso, idx) => {
+                const name = locales.name(iso);
+                const cont = document.createElement('div');
+                cont.className = 'onboarding-language-container';
+                const language = document.createElement('div');
+                language.className = 'onboarding-language';
+                const title = document.createElement('p');
+                title.className = 'onboarding-language-label';
+                title.innerText = name;
+                language.appendChild(title);
+                cont.appendChild(language);
+                if(idx === 0) {
+                    language.classList.add('onboarding-language-active');
+                }
+                $onboardinglanguagegrid.appendChild(cont);
+            });
+            await tv.system.wait(10);
+            $onboardinglanguage.style.opacity = '1';
+            await tv.system.wait(325);
+            tv.onboarding.transitioning = false;
+        }
+    } else if(tv.onboarding.stage === 1) {
+        if(event.key === 'up') {
+            if(tv.onboarding.selectedLanguage < locales.list().length - 1) {
+                tv.onboarding.transitioning = true;
+                tv.onboarding.selectedLanguage += 1;
+                document.querySelector('.onboarding-language-active').classList.remove('onboarding-language-active');
+                const element = document.querySelectorAll('.onboarding-language-active')[tv.onboarding.selectedLanguage];
+                element.classList.add('onboarding-language-active');
+                element.parentElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest'
+                });
+                await tv.system.wait(310);
+                tv.onboarding.transitioning = false;
+            }
+        } else if(event.key === 'down') {
+            if(tv.onboarding.selectedLanguage > 0) {
+                tv.onboarding.transitioning = true;
+                tv.onboarding.selectedLanguage -= 1;
+                document.querySelector('.onboarding-language-active').classList.remove('onboarding-language-active');
+                const element = document.querySelectorAll('.onboarding-language-active')[tv.onboarding.selectedLanguage];
+                element.classList.add('onboarding-language-active');
+                element.parentElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest'
+                });
+                await tv.system.wait(310);
+                tv.onboarding.transitioning = false;
+            }
+        } else if(event.key === 'ok') {
+            tv.system.language = locales.list()[tv.onboarding.selectedLanguage];
+            tv.onboarding.transitioning = true;
+            $onboardinglanguage.style.opacity = '0';
+            await tv.system.wait(325);
+            $onboardinglanguage.style.display = 'none';
+            $onboardingwelcome.style.display = '';
+            $onboardingwelcome.querySelector('p').innerText = locales.get('tv.onboarding.welcome');
+            $onboardingwelcomebutton.innerText = locales.get('tv.onboarding.letsgo');
+            await tv.system.wait(10);
+            $onboardingwelcome.style.opcaity = '1';
+            await tv.system.wait(325);
+            tv.onboarding.stage = -1;
+            tv.onboarding.transitioning = false;
+        }
+    } else if(tv.onboarding.stage === -1) {
+        if(event.key === 'ok') {
+            tv.onboarding.transitioning = true;
+            $onboardingwelcomebutton.style.transform = 'scale(0.8)';
+            await tv.system.wait(110);
+            $onboardingwelcomebutton.style.transform = 'scale(1.45)';
+            await tv.system.wait(110);
+            $onboardingwelcomebutton.style.transform = 'scale(1)';
+            await tv.system.wait(300);
+            $onboardingwelcome.style.opacity = '0';
+            await tv.system.wait(325);
+            tv.apps.laoad('live-tv');
+        } 
+    }
+};
+
 const onbuttonpressedonhome = (key) => {
     if(key === 'left') {
         if(tv.home.selected > 0) {
@@ -382,5 +483,11 @@ $usbaudiovideo.ontimeupdate = () => {
     $usbaudiopositiontrack.style.width = `calc(${($usbaudiovideo.currentTime/$usbaudiovideo.duration)*100}%)`;
 };
 
-
-tv.apps.load(tv.system.app, true);
+if(tv.onboarding.seen()) {
+    if(!isNaN(localStorage.getItem('tv.live.channel'))) {
+        tv.live.channel = Number(localStorage.getItem('tv.live.channel'));
+    }
+    tv.apps.load(tv.system.app, true);
+} else {
+    tv.onboarding.start();
+}
