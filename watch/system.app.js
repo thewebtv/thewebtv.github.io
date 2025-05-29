@@ -197,6 +197,7 @@ const tv = {
         path: '/',
         sfi: 0,
         objectUrl: '',
+        imageObjectUrl: '',
         root: '',
         /**
          * @type {(FileSystemDirectoryHandle|FileSystemFileHandle)[]}
@@ -342,6 +343,7 @@ const tv = {
             document.querySelector('.usb-image-viewer').style.display = 'none';
             document.querySelector('.usb-audio').style.display = 'none';
             if(tv.usbdrive.objectUrl) URL.revokeObjectURL(tv.usbdrive.objectUrl);
+            if(tv.usbdrive.imageObjectUrl) URL.revokeObjectURL(tv.usbdrive.imageObjectUrl);
         },
         focusFileButton: (id) => {
             const tiles = document.querySelectorAll('.usb-main .usb-file');
@@ -400,6 +402,7 @@ const tv = {
             }
         },
         openAudioFile: async (name) => {
+            $usbaudioimage.src = 'assets/album-default.png';
             $usbaudiorwbutton.className = 'usb-audio-control';
             $usbaudioplaybutton.className = 'usb-audio-control usb-audio-control-active';
             $usbaudioffbutton.className = 'usb-audio-control';
@@ -429,8 +432,16 @@ const tv = {
                     if(metadata.album) {
                         $usbaudioalbum.innerText = metadata.album;
                     }
+                    if(metadata.imageURL) {
+                        $usbaudioimage.onerror = () => {
+                            // Prevent recursion
+                            $usbaudioimage.onerror = null;
+                            $usbaudioimage.src = 'assets/album-default.png';
+                        }
+                        tv.usbdrive.imageObjectUrl = $usbaudioimage.src = metadata.imageURL;
+                    }
                 } else if(buffer.byteLength <= limit) {
-                    ID3Parse.BufferToString(buffer).then(async text => {
+                    ID3Parse.BufferToStringAsync(buffer).then(async text => {
                         let metadata = ID3Parse.Types.NullMetadata();
                         // M4A files
                         if(name.toLowerCase().endsWith('.m4a')) {

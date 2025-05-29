@@ -267,8 +267,10 @@ const onbuttonpressedusbreader = ({ key, repeat }) => {
     } else if(tv.usbdrive.section === 'audio') {
         if(key === 'exit') {
             URL.revokeObjectURL(tv.usbdrive.objectUrl);
+            if(tv.usbdrive.imageObjectUrl) URL.revokeObjectURL(tv.usbdrive.imageObjectUrl);
             if(!$usbaudiovideo.paused) $usbaudiovideo.pause();
             tv.usbdrive.objectUrl = '';
+            tv.usbdrive.imageObjectUrl = '';
             document.querySelector('.usb-audio').style.display = 'none';
             document.querySelector('.usb-main').style.display = '';
             tv.usbdrive.section = 'browse';
@@ -332,7 +334,6 @@ if('showDirectoryPicker' in window && 'indexedDB' in window) {
         USBStorageReader.i.idb = db;
         try {
             USBStorageReader.i.fh = await USBStorageReader.i.idb.get('EXT_DRIVE_HANDLE');
-            USBStorageReader.i.fh.requestPermission('read');
         } catch (error) {
             void(error);
         }

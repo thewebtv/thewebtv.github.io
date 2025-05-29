@@ -11,7 +11,9 @@ const ID3Parse = {
          * trackNumber?:number,
          * releaseYear?:number,
          * genre?:string|number,
-         * lyrics?:string
+         * lyrics?:string,
+         * key?:string,
+         * bpm?:string
          * }} metadata 
          * @returns {{
          * title?:string,
@@ -22,10 +24,12 @@ const ID3Parse = {
          * trackNumber?:number,
          * releaseYear?:number,
          * genre?:string|number,
-         * lyrics?:string
+         * lyrics?:string,
+         * key?:string,
+         * bpm?:string
          * }} 
          */
-        Metadata: function ({ title, artist, album, composer, imageURL, trackNumber, releaseYear, genre, lyrics }) {
+        Metadata: function ({ title, artist, album, composer, imageURL, trackNumber, releaseYear, genre, lyrics, key, bpm }) {
             return {
                 title,
                 artist,
@@ -35,7 +39,9 @@ const ID3Parse = {
                 trackNumber,
                 releaseYear,
                 genre,
-                lyrics
+                lyrics,
+                key,
+                bpm
             };
         },
         NullMetadata: () => ID3Parse.Types.Metadata({})
@@ -89,12 +95,25 @@ const ID3Parse = {
         return array.join('');
     },
     /**
+     * 
+     * @param {ArrayBuffer|Uint8Array} buffer 
+     * @returns {Promise<string>}
+     */
+    BufferToStringAsync: async function (buffer) {
+        const array = buffer instanceof Uint8Array ? Array.from(buffer) : Array.from(new Uint8Array(buffer));
+        for(var i = 0; i < array.length; i++) {
+            const og = array[i];
+            array[i] = String.fromCharCode(og);
+        }
+        return array.join('');
+    },
+    /**
      * Parses metadata out of an M4A file.
      * @param {Buffer|Uint8Array|string} data 
      * @returns {Promise<ID3Parse.Types.Metadata>}
      */
     ParseM4A: async function (data) {
-        if(typeof data != 'string') data = await ID3Parse.BufferToString(data);
+        if(typeof data != 'string') data = await ID3Parse.BufferToStringAsync(data);
         const sliceStart = data.slice(
             data.indexOf('nam\u0000\u0000\u0000'),
         );
@@ -181,7 +200,6 @@ const ID3Parse = {
         const id3 = data.subarray(10, 10 + length);
         let key = '';
         let value = '';
-        let now = Date.now();
         for(let i = 0; i < id3.length; i++) {
             key = String.fromCharCode(id3[i])+String.fromCharCode(id3[i+1])+String.fromCharCode(id3[i+2])+String.fromCharCode(id3[i+3]);
             i += 4;
@@ -196,7 +214,6 @@ const ID3Parse = {
             i += size;
             key = value = '';
             i -= 1;
-            // if(Date.now()-now >= 5000) break;
         }
         let m = {};
         prop.forEach(({key,value}) => {
@@ -218,6 +235,60 @@ const ID3Parse = {
                 } else {
                     m.album = ID3Parse.BufferToString(value).slice(1, -1);
                 }
+            } else if(key === 'USLT') {
+                m.lyrics = (new TextDecoder('utf-16')).decode(value.subarray(3));
+            } else if(key === 'TCOM' && !m.composer) {
+                if(value[1] === 255 && value[2] === 254) {
+                    m.composer = (new TextDecoder('utf-16')).decode(value.subarray(3));
+                } else {
+                    m.composer = ID3Parse.BufferToString(value).slice(1, -1);
+                }
+            } else if(key === 'TKEY' && !m.key) {
+                if(value[1] === 255 && value[2] === 254) {
+                    m.key = (new TextDecoder('utf-16')).decode(value.subarray(3));
+                } else {
+                    m.key = ID3Parse.BufferToString(value).slice(1, -1);
+                }
+            } else if(key === 'TBPM' && !m.bpm) {
+                if(value[1] === 255 && value[2] === 254) {
+                    m.bpm = (new TextDecoder('utf-16')).decode(value.subarray(3));
+                } else {
+                    m.bpm = ID3Parse.BufferToString(value).slice(1, -1);
+                }
+            } else if(key === 'APIC' && !m.imageURL) {
+                const descTextEncoding = value[0];
+                let mime = '';
+                let i = 1;
+                for(i = 1; i < value.length; i++) {
+                    if(value[i] === 0x00) {
+                        i += 1;
+                        break;
+                    } else {
+                        mime += String.fromCharCode(value[i]);
+                    }
+                };
+                const pictureType = value[i];
+                i += 1;
+                if(pictureType != 0x03 && pictureType != 0x00 && pictureType != 0x06) return;
+                for(null; i < value.length; i += descTextEncoding === 0x01 ? 2 : 1) {
+                    if(descTextEncoding === 0x01) {
+                        if(value[i] === 0x00 && value[i+1] === 0x00) {
+                            i += 2;
+                            break;
+                        }
+                    } else {
+                        if(value [i] === 0x00) {
+                            i += 1;
+                            break;
+                        }
+                    }
+                };
+                const bin = value.subarray(i);
+                const blob = new Blob([bin], {
+                    type: mime || 'image/png'
+                });
+                const url = URL.createObjectURL(blob);
+                m.imageURL = url;
             }
         });
         return ID3Parse.Types.Metadata(m);
