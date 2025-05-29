@@ -183,10 +183,10 @@ const ID3Parse = {
         for(let i = 0; i < id3.length; i++) {
             key = String.fromCharCode(id3[i])+String.fromCharCode(id3[i+1])+String.fromCharCode(id3[i+2])+String.fromCharCode(id3[i+3]);
             i += 4;
-            if(!id3[i]) break;
-            const size = ID3Parse.GetLengthOfID3(id3.slice(i, i+4));
+            // if(!id3[i]) break;
+            const size = ID3Parse.GetLengthOfID3(id3.subarray(i, i+4));
             i += 6;
-            if(!id3[i]) break;
+            // if(!id3[i]) break;
             for(let j = 0; j < size; j++) {
                 value += String.fromCharCode(id3[i]);
                 i += 1;
