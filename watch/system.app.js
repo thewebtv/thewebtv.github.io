@@ -428,7 +428,7 @@ const tv = {
                 const buffer = await file.arrayBuffer();
                 const limit = 1024 * 1024 * 15; 
                 const uint8 = new Uint8Array(buffer);
-                if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51&&uint8[3]>=0x03) {
+                if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51&&uint8[3]===0x03) {
                     // ID3v2.3.0
                     const metadata = ID3Parse.ParseID3(uint8);
                     if(metadata.title) {
@@ -450,23 +450,25 @@ const tv = {
                     }
                 } else if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51&&uint8[3]===0x03) {
                     // TODO: add support for ID3v2.0.0/ID3v2.2.0
-                } else if(buffer.byteLength <= limit) {
-                    ID3Parse.BufferToStringAsync(buffer).then(async text => {
-                        let metadata = ID3Parse.Types.NullMetadata();
-                        // M4A files
-                        if(name.toLowerCase().endsWith('.m4a')) {
-                            metadata = await ID3Parse.ParseM4A(text);
+                } else if(ID3Parse.BufferToString(uint8.slice(4,10)) === 'ftypeM4A') {
+                    let metadata = ID3Parse.ParseM4A(uint8);
+                    if(metadata.title) {
+                        $usbaudiotitle.innerText = metadata.title;
+                    }
+                    if(metadata.artist) {
+                        $usbaudioartist.innerText = metadata.artist;
+                    }
+                    if(metadata.album) {
+                        $usbaudioalbum.innerText = metadata.album;
+                    }
+                    if(metadata.imageURL) {
+                        $usbaudioimage.onerror = () => {
+                            // Prevent recursion
+                            $usbaudioimage.onerror = null;
+                            $usbaudioimage.src = 'assets/album-default.png';
                         }
-                        if(metadata.title) {
-                            $usbaudiotitle.innerText = metadata.title;
-                        }
-                        if(metadata.artist) {
-                            $usbaudioartist.innerText = metadata.artist;
-                        }
-                        if(metadata.album) {
-                            $usbaudioalbum.innerText = metadata.album;
-                        }
-                    }).catch(error => alert(error));
+                        tv.usbdrive.imageObjectUrl = $usbaudioimage.src = metadata.imageURL;
+                    }
                 }
                 tv.usbdrive.section = 'audio';
             } catch (error) {

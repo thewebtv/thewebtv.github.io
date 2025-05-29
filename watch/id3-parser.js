@@ -96,99 +96,40 @@ const ID3Parse = {
     },
     /**
      * 
-     * @param {ArrayBuffer|Uint8Array} buffer 
-     * @returns {Promise<string>}
+     * @param {Uint8Array} data 
      */
-    BufferToStringAsync: async function (buffer) {
-        const array = buffer instanceof Uint8Array ? Array.from(buffer) : Array.from(new Uint8Array(buffer));
-        for(var i = 0; i < array.length; i++) {
-            const og = array[i];
-            array[i] = String.fromCharCode(og);
-        }
-        return array.join('');
+    ParseM4A: function (data) {
+        const block = ID3Parse.FindBlock(data, 'moov.udta.meta.list');
+        console.log(block);
+        return {};
     },
     /**
-     * Parses metadata out of an M4A file.
-     * @param {Buffer|Uint8Array|string} data 
-     * @returns {Promise<ID3Parse.Types.Metadata>}
+     * @param {Uint8Array} data
+     * @param {string|string[]} block
      */
-    ParseM4A: async function (data) {
-        if(typeof data != 'string') data = await ID3Parse.BufferToStringAsync(data);
-        const sliceStart = data.slice(
-            data.indexOf('nam\u0000\u0000\u0000'),
-        );
-        const slice = sliceStart.slice(0, sliceStart.indexOf('\u0000trkn'));
-        const indicatorSplit = slice.split('\u0001').join('\u0000').split('\u0000');
-        let mode = 'getName';
-        let prop = {};
-        let name = '';
-        let value = '';
-        for(let i = 0; i < indicatorSplit.length; i++) {
-            let t = indicatorSplit[i];
-            if(mode === 'getName') {
-                if(t.length > 2 && t.charCodeAt(0) > 0x10) {
-                    name = t;
-                    mode = 'waitForData'
-                }
-            } else if(mode === 'waitForData') {
-                if(t.replaceAll('\n','').includes('data')) {
-                    mode = 'findData';
-                }
-            } else if(mode === 'findData') {
-                if(t && t.charCodeAt(0) > 0x20) {
-                    prop[name] = t;
-                    mode = 'getName'
+    FindBlock: function (data, block) {
+        let blocks = Array.isArray(block) ? block : block.split('.');
+        let blockName = '';
+        let blockLength = 0;
+        let blockSize = 0;
+        for(let i = 0; i < data.length; i++) {
+            blockName = '';
+            blockLength = ID3Parse.GetLengthOfMp4(data.subarray(i, i + 4));
+            blockSize = blockLength - 8;
+            for(let j = 0; j < 4; j++) {
+                blockName += String.fromCharCode(data[i + 4 + j]);
+            }
+            if(blockName === blocks[0]) {
+                blocks.shift();
+                if(blocks[0]) {
+                    return ID3Parse.FindBlock(data.subarray(i, i + blockLength), blocks);
+                } else {
+                    return data.subarray(i, i + blockLength);
                 }
             }
-        };
-        let m = {};
-        Object.keys(prop).forEach(keyRaw => {
-            const key = keyRaw.toLowerCase();
-            if(key.includes('nam')||key.includes('tit')) {
-                m.title = prop[keyRaw]
-            } else if(key.includes('art')) {
-                m.artist = prop[keyRaw];
-            } else if(key.includes('alb')||key.includes('abm')) {
-                m.album = prop[keyRaw];
-            }
-        });
-        return ID3Parse.Types.Metadata(m);
-    },
-    /**
-     * Parses metadata out of an MP3 file.
-     * @param {Buffer|Uint8Array|string} data
-     * @deprecated
-     */
-    ParseID3Legacy: async function (data) {
-        if(typeof data != 'string') data = await ID3Parse.BufferToString(data);
-        const sliceStartIndex = data.slice(0, 100).indexOf('ID3');
-        if(sliceStartIndex < 0) return {};
-        const sliceStart = data.slice(sliceStartIndex + 35);
-        const sliceEnd = sliceStartIndex + 100000 //sliceStart.indexOf('\u00FF\u00FE\u0000\u0000\u00FF');
-        // if(sliceEnd < startIndex + 36) return;
-        const slice = sliceEnd < sliceStartIndex + 36 ? slice : sliceStart.slice(0, sliceEnd);
-        const getProp = (slice) => {
-            return slice.slice(11, 11+slice.slice(4,8).charCodeAt(3)-2);
-        };
-        const nameIndex = slice.indexOf('TIT2');
-        let artistIndex = slice.indexOf('TPE1');
-        if(artistIndex < 0) artistIndex = slice.indexOf('TPE2');
-        const albumIndex = slice.indexOf('TALB');
-        const composerIndex = slice.indexOf('TCOM');
-        const m = {};
-        if(nameIndex > -1) {
-            m.title = getProp(slice.slice(nameIndex));
+            i += blockLength;
         }
-        if(artistIndex > -1) {
-            m.artist = getProp(slice.slice(artistIndex));
-        }
-        if(albumIndex > -1) {
-            m.album = getProp(slice.slice(albumIndex));
-        }
-        if(composerIndex > -1) {
-            m.composer = getProp(slice.slice(composerIndex));
-        }
-        return ID3Parse.Types.Metadata(m);
+        return null;
     },
     /**
      * 
@@ -302,6 +243,11 @@ const ID3Parse = {
         while(bin.length < 7) bin = '0' + bin;
         return bin;
     },
+    Make8Bits: function (n) {
+        let bin = n.toString(2);
+        while(bin.length < 8) bin = '0' + bin;
+        return bin;
+    },
     /**
      * 
      * @param {number[]|Uint8Array} n 
@@ -312,5 +258,15 @@ const ID3Parse = {
             d += ID3Parse.Make7Bits(n[i]);
         }
         return parseInt(d, 2);
+    },
+    /**
+     * @param {number[]|Uint8Array} n 
+     */
+    GetLengthOfMp4: function (n) {
+        let d = '';
+        for(let i = 0; i < n.length; i++) {
+            d += ID3Parse.Make7Bits(n[i]);
+        }
+        return parseInt(d, 2);
     }
-}
+};
