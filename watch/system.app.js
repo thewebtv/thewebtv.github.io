@@ -438,6 +438,7 @@ const tv = {
                     }).catch(error => alert(error));
                 } else if(name.toLowerCase().endsWith('.mp3')) {
                     const uint8 = new Uint8Array(buffer);
+                    alert("WOW")
                     console.log(ID3Parse.ParseID3Experimental(uint8));
                 }
                 tv.usbdrive.section = 'audio';
