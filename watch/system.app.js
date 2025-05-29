@@ -417,7 +417,7 @@ const tv = {
                 $usbaudiovideo.play();
                 const buffer = await file.arrayBuffer();
                 const limit = 1024 * 1024 * 15; 
-                if(buffer.byteLength <= limit) {
+                if(buffer.byteLength <= limit && !name.toLowerCase().endsWith('.mp3')) {
                     ID3Parse.BufferToString(buffer).then(async text => {
                         let metadata = ID3Parse.Types.NullMetadata();
                         // M4A files
@@ -436,6 +436,9 @@ const tv = {
                             $usbaudioalbum.innerText = metadata.album;
                         }
                     }).catch(error => alert(error));
+                } else if(name.toLowerCase().endsWith('.mp3')) {
+                    const uint8 = new Uint8Array(buffer);
+                    console.log(ID3Parse.ParseID3Experimental(uint8));
                 }
                 tv.usbdrive.section = 'audio';
             } catch (error) {

@@ -41,6 +41,41 @@ const ID3Parse = {
         NullMetadata: () => ID3Parse.Types.Metadata({})
     },
     /**
+     * @param {ArrayBuffer} buffer
+     * @param {ArrayBuffer|Uint8Array|string} subdata 
+     */
+    IndexBuffer: function (buffer, subdata) {
+        let data = subdata;
+        if(subdata instanceof ArrayBuffer) data = new Uint8Array(subdata);
+        if(typeof subdata === 'string') data = ID3Parse.StringToUint8Array(subdata);
+        let buff = new Uint8Array(buffer);
+        for(let i = 0; i < buff.length - data.length; i++) {
+            let doesMatch = true;
+            for(let j = 0; j < data.length; j++) {
+                if(buff[i+j] !== data[j]) {
+                    doesMatch = false;
+                    break;
+                }
+            }
+            if(doesMatch) return i;
+        }
+        return -1;
+    },
+    BufferStartsWith: function (buffer, subdata) {
+        let data = subdata;
+        if(subdata instanceof ArrayBuffer) data = new Uint8Array(subdata);
+        if(typeof subdata === 'string') data = ID3Parse.StringToUint8Array(subdata);
+        if(data.length > buffer.length) return false;
+        let buff = new Uint8Array(buffer);
+        for(let i = 0; i < data.length; i++) {
+            if(buff[i] !== data[i]) return false;
+        }
+        return true;
+    },
+    StringToUint8Array: function (string) {
+        return new Uint8Array(string.split(''));
+    }, 
+    /**
      * 
      * @param {ArrayBuffer|Uint8Array} buffer 
      * @returns {Promise<string>}
@@ -135,4 +170,34 @@ const ID3Parse = {
         }
         return ID3Parse.Types.Metadata(m);
     },
+    /**
+     * 
+     * @param {Uint8Array} data 
+     */
+    ParseID3Experimental: function (data) {
+        const prop = [];
+        const length = ID3Parse.GetLengthOfID3(data.slice(6, 10));
+        const id3 = data.slice(10, 10 + length);
+        return id3;
+    },
+    /**
+     * 
+     * @param {number} n 
+     */
+    Make7Bits: function (n) {
+        let bin = n.toString(2);
+        while(bin.length < '7') bin = '0' + n;
+        return bin;
+    },
+    /**
+     * 
+     * @param {number[]|Uint8Array} n 
+     */
+    GetLengthOfID3: function (n) {
+        let d = '';
+        for(let i = 0; i < n.length; i++) {
+            d += ID3Parse.Make7Bits(n[i]);
+        }
+        return parseInt(d, 2);
+    }
 }
