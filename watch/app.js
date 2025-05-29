@@ -366,6 +366,7 @@ const onbuttonpressedonboarding = async (event={key:'',repeat:false}) => {
         } else if(event.key === 'ok') {
             tv.system.language = locales.list()[tv.onboarding.selectedLanguage];
             tv.onboarding.transitioning = true;
+            tv.onboarding.stage = -1;
             $onboardinglanguage.style.opacity = '0';
             await tv.system.wait(325);
             $onboardinglanguage.style.display = 'none';
@@ -373,9 +374,8 @@ const onbuttonpressedonboarding = async (event={key:'',repeat:false}) => {
             $onboardingwelcome.querySelector('p').innerText = locales.get('tv.onboarding.welcome');
             $onboardingwelcomebutton.innerText = locales.get('tv.onboarding.letsgo');
             await tv.system.wait(10);
-            $onboardingwelcome.style.opcaity = '1';
+            $onboardingwelcome.style.opacity = '1';
             await tv.system.wait(325);
-            tv.onboarding.stage = -1;
             tv.onboarding.transitioning = false;
         }
     } else if(tv.onboarding.stage === -1) {
@@ -386,10 +386,13 @@ const onbuttonpressedonboarding = async (event={key:'',repeat:false}) => {
             $onboardingwelcomebutton.style.transform = 'scale(1.45)';
             await tv.system.wait(110);
             $onboardingwelcomebutton.style.transform = 'scale(1)';
-            await tv.system.wait(300);
-            $onboardingwelcome.style.opacity = '0';
-            await tv.system.wait(325);
-            tv.apps.laoad('live-tv');
+            await tv.system.wait(500);
+            document.querySelector('.onboarding-fader').style.display = '';
+            await tv.system.wait(10);
+            document.querySelector('.onboarding-fader').style.opacity = '1';
+            await tv.system.wait(2245);
+            localStorage.setItem('tv.onboarding.seen', true);
+            tv.apps.load('live-tv');
         } 
     }
 };
