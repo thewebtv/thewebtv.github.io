@@ -177,8 +177,27 @@ const ID3Parse = {
     ParseID3Experimental: function (data) {
         const prop = [];
         const length = ID3Parse.GetLengthOfID3(data.slice(6, 10));
-        const id3 = data.slice(10, 10 + 20);
-        return id3;
+        const id3 = data.subarray(10, 10 + length);
+        let key = '';
+        let value = '';
+        for(let i = 0; i < id3.length; i++) {
+            key = String.fromCharCode(id3[i])+String.fromCharCode(id3[i+1])+String.fromCharCode(id3[i+2])+String.fromCharCode(id3[i+3]);
+            i += 4;
+            if(!id3[i]) break;
+            const size = ID3Parse.GetLengthOfID3(id3.slice(i, i+4));
+            i += 6;
+            if(!id3[i]) break;
+            for(let j = 0; j < size; j++) {
+                value += String.fromCharCode(id3[i]);
+                i += 1;
+            }
+            prop.push({
+                key: key,
+                value: value
+            });
+            key = value = '';
+        }
+        return prop;
     },
     /**
      * 
