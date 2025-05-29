@@ -176,41 +176,11 @@ const ID3Parse = {
      */
     ParseID3Experimental: function (data) {
         const prop = [];
-        const length = ID3Parse.GetLengthOfID3(data.slice(6, 10));
+        const length = ID3Parse.GetLengthOfID3(data.subarray(6, 10));
         const id3 = data.subarray(10, 10 + length);
         let key = '';
         let value = '';
-        const tags = [
-            'TIT2',
-            'TPE1',
-            'TPE2',
-            'TPE3',
-            'TPE4',
-            'TALB',
-            'TCOM',
-            'TCON',
-            'TBPM',
-            'TKEY',
-            'TLAN',
-            'TPUB',
-            'TPOS',
-            'TRCK',
-            'PCNT',
-            'GEOB',
-            'APIC',
-            'AENC'
-        ];
-        let tagIndex = -1;
-        for(let z = 0; z < tags.length; z++) {
-            const index = ID3Parse.IndexBuffer(id3, tags[z]);
-            if(index > -1) {
-                tagIndex = index;
-                break;
-            }
-        }
-        if(tagIndex < 0) return [];
-        return id3.subarray(tagIndex);
-        for(let i = tagIndex; i < id3.length; i++) {
+        for(let i = 0; i < id3.length; i++) {
             key = String.fromCharCode(id3[i])+String.fromCharCode(id3[i+1])+String.fromCharCode(id3[i+2])+String.fromCharCode(id3[i+3]);
             i += 4;
             // if(!id3[i]) break;
@@ -221,13 +191,35 @@ const ID3Parse = {
                 value += String.fromCharCode(id3[i]);
                 i += 1;
             }
+            if(!value) break;
             prop.push({
                 key: key,
                 value: value
             });
             key = value = '';
+            i -= 1;
         }
-        return prop;
+        let m = {
+            artist: []
+        };
+        prop.forEach(({key,value}) => {
+            if(key === 'TIT2' && !m.title) {
+                m.title = value.slice(1, -1);
+            } else if(key.slice(0,3) === 'TPE') {
+                m.artist.push(value)
+            } else if(key === 'TALB' && !m.album) {
+                m.album = value;
+            }
+        });
+        if(m.artist.length === 1) {
+            m.artist = m.artist[0];
+        } else if(m.artist.length === 0) {
+            m.artist = null;
+        } else {
+            const popped = m.artist.pop();
+            m.artist = m.artist.join(', ') + ' & ' + popped;
+        }
+        return ID3Parse.Types.Metadata(m);
     },
     /**
      * 

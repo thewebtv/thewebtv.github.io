@@ -438,7 +438,21 @@ const tv = {
                     }).catch(error => alert(error));
                 } else if(name.toLowerCase().endsWith('.mp3')) {
                     const uint8 = new Uint8Array(buffer);
-                    console.log(ID3Parse.ParseID3Experimental(uint8));
+                    const metadata = ID3Parse.ParseID3Experimental(uint8);
+                        if(name.toLowerCase().endsWith('.m4a')) {
+                            metadata = await ID3Parse.ParseM4A(text);
+                        } else if(text.startsWith('ID3')) {
+                            metadata = await ID3Parse.ParseID3(text);
+                        }
+                        if(metadata.title) {
+                            $usbaudiotitle.innerText = metadata.title;
+                        }
+                        if(metadata.artist) {
+                            $usbaudioartist.innerText = metadata.artist;
+                        }
+                        if(metadata.album) {
+                            $usbaudioalbum.innerText = metadata.album;
+                        }
                 }
                 tv.usbdrive.section = 'audio';
             } catch (error) {
