@@ -8,8 +8,11 @@ const tv = {
         get name() {
             return localStorage.getItem('tv.system.name') || `My ${Config.Device.Name}`;
         },
-        set name(name) {
-            return localStorage.setItem('tv.system.name', name);
+        get language() {
+            return localStorage.getItem('tv.system.name') || 'en-US';
+        },
+        set language(lang) {
+            return localStorage.setItem('tv.system.lang', lang);
         },
         app: 'live-tv',
         volume: 30,
@@ -116,9 +119,9 @@ const tv = {
                 clearTimeout(tv.live.badge.__debounce__);
                 const badge = document.querySelector('.live-badge');
                 document.querySelector('.live-badge-img').src = `./channels/${id}.png`;
-                document.querySelector('.live-badge-index').innerText = `Channel ${index+1}`;
+                document.querySelector('.live-badge-index').innerText = locales.get('tv.live.channelIndicator', index+1);
                 document.querySelector('.live-badge-channel').innerText = name;
-                document.querySelector('.live-badge-category').innerText = category;
+                document.querySelector('.live-badge-category').innerText = locales.get(`tv.live.genre.${category}`);
                 badge.style.display = '';
                 tv.live.badge.__debounce__ = setTimeout(function () {
                     badge.style.display = 'none';
