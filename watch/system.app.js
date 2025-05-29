@@ -99,9 +99,9 @@ const tv = {
          * @param {number} channelId 
          */
         start: function (channelId) {
-            localStorage.setItem('tv.live.channel', channelId);
             tv.live.captions.cues = [];
             if(typeof channelId === 'number') tv.live.channel = channelId;
+            localStorage.setItem('tv.live.channel', tv.live.channel);
             tv.live.stop(); // stop existing things
             clearTimeout(tv.live.__debounce__);
             tv.live.badge.set(tv.live.channel, CHANNELS[tv.live.region][tv.live.channel]);
