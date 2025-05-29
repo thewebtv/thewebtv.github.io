@@ -206,9 +206,9 @@ const ID3Parse = {
             if(key === 'TIT2' && !m.title) {
                 m.title = value.slice(1, -1);
             } else if(key.slice(0,3) === 'TPE') {
-                m.artist.push(value)
+                m.artist.push(value.slice(1, -1));
             } else if(key === 'TALB' && !m.album) {
-                m.album = value;
+                m.album = value.slice(1, -1);
             }
         });
         if(m.artist.length === 1) {
