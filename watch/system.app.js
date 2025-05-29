@@ -448,9 +448,9 @@ const tv = {
                         }
                         tv.usbdrive.imageObjectUrl = $usbaudioimage.src = metadata.imageURL;
                     }
-                } else if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51&&uint8[3]===0x03) {
+                } else if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51&&uint8[3]===0x02) {
                     // TODO: add support for ID3v2.0.0/ID3v2.2.0
-                } else if(ID3Parse.BufferToString(uint8.slice(4,10)) === 'ftypeM4A') {
+                } else if(ID3Parse.BufferToString(uint8.slice(4,11)) === 'ftypeM4A') {
                     let metadata = ID3Parse.ParseM4A(uint8);
                     if(metadata.title) {
                         $usbaudiotitle.innerText = metadata.title;
