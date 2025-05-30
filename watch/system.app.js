@@ -461,8 +461,8 @@ const tv = {
 
                     const metadata = {
                         title: m4a.getStringMetadata('\u00A9nam'),
-                        artist: m4a.getStringMetadata('\u00A9nam'),
-                        album: m4a.getStringMetadata('\u00A9nam'),
+                        artist: m4a.getStringMetadata('\u00A9ART'),
+                        album: m4a.getStringMetadata('\u00A9alb'),
                     };
 
                     if(metadata.title) {
