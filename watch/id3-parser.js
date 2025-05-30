@@ -265,7 +265,7 @@ const ID3Parse = {
     GetLengthOfMp4: function (n) {
         let d = '';
         for(let i = 0; i < n.length; i++) {
-            d += ID3Parse.Make7Bits(n[i]);
+            d += ID3Parse.Make8Bits(n[i]);
         }
         return parseInt(d, 2);
     }
