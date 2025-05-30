@@ -428,7 +428,7 @@ const tv = {
                 const buffer = await file.arrayBuffer();
                 const limit = 1024 * 1024 * 15; 
                 const uint8 = new Uint8Array(buffer);
-                if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51&&uint8[3]===0x03) {
+                if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51&&(uint8[3]===0x03||uint8[3]===0x04)) {
                     // ID3v2.3.0
                     const metadata = ID3Parse.ParseID3(uint8);
                     if(metadata.title) {
