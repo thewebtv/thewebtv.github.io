@@ -432,7 +432,7 @@ const tv = {
                 try {
                     m4a = new M4AFile(uint8);
                 } catch (error) {
-                    alert(error.stack);
+                    void(error);
                 }
                 if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51&&(uint8[3]===0x03||uint8[3]===0x04)) {
                     // ID3v2.3.0
