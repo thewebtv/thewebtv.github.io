@@ -428,6 +428,12 @@ const tv = {
                 const buffer = await file.arrayBuffer();
                 const limit = 1024 * 1024 * 15; 
                 const uint8 = new Uint8Array(buffer);
+                let m4a;
+                try {
+                    m4a = new M4AFile(uint8);
+                } catch (error) {
+                    alert(error.stack);
+                }
                 if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51&&(uint8[3]===0x03||uint8[3]===0x04)) {
                     // ID3v2.3.0
                     const metadata = ID3Parse.ParseID3(uint8);
@@ -450,8 +456,15 @@ const tv = {
                     }
                 } else if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51&&uint8[3]===0x02) {
                     // TODO: add support for ID3v2.0.0/ID3v2.2.0
-                } else if(false) {
-                    let metadata = ID3Parse.ParseM4A(uint8);
+                } else if(m4a) {
+                    // let metadata = ID3Parse.ParseM4A(uint8);
+
+                    const metadata = {
+                        title: m4a.getStringMetadata('\u00A9nam'),
+                        artist: m4a.getStringMetadata('\u00A9nam'),
+                        album: m4a.getStringMetadata('\u00A9nam'),
+                    };
+
                     if(metadata.title) {
                         $usbaudiotitle.innerText = metadata.title;
                     }
@@ -472,11 +485,13 @@ const tv = {
                 }
                 tv.usbdrive.section = 'audio';
             } catch (error) {
+                alert(error.stack);
                 console.warn(error);
                 document.querySelector('.usb-main').style.display = '';
                 document.querySelector('.usb-audio').style.display = 'none';
                 tv.usbdrive.section = 'browse';
                 tv.usbdrive.renderFolder(tv.usbdrive.path);
+                $usbaudiovideo.pause();
             }
         },
         openVideoFile: async (name) => {
