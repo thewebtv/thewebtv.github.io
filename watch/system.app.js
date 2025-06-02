@@ -26,6 +26,37 @@ const tv = {
         noop: () => { return () => {}; },
         wait: (time) => {
             return new Promise(resolve => setTimeout(_ => resolve(), time));
+        },
+        parental: {
+            enabled: () => {
+                return localStorage.getItem('tv.system.parental.enabled') === 'yes';
+            },
+            get pin () {
+                return localStorage.getItem('tv.system.parental.pin')||'0000';
+            },
+            set pin (pin) {
+                localStorage.setItem('tv.system.parental.pin', pin);
+            },
+            /**
+             * 
+             * @param {'tvy'|'tvy7'|'tvy7fv'|'tvg'|'tvpg'|'tv14'|'tvma'|'g'|'pg'|'pg13'|'r'|'nc17'|'explicit-audio'} rating 
+             */
+            ratingAllowed: (rating) => {
+                if(!tv.system.parental.enabled()) return true;
+                const tvpgratings = 'tvy,tvy7,tvy7fv,tvg,tvpg,tv14,tvma'.split();
+                const mpaaratings = 'g,pg,pg13,r,nc17'.split();
+                if(rating === 'explicit-audio') {
+                    return localStorage.getItem('tv.system.parental.blockExplicitAudio') != 'yes'
+                } else if(tvpgratings.includes(rating)) {
+                    const maxRating = localStorage.getItem('tv.system.parental.maxTVPGRating')||'tvma';
+                    if(tvpgratings.indexOf(rating) < tvpgratings.indexOf(maxRating)) return false;
+                    return true;
+                } else if(mpaaratings.includes(rating)) {
+                    const maxRating = localStorage.getItem('tv.system.parental.maxMPAARating')||'tvma';
+                    if(mpaaratings.indexOf(rating) < mpaaratings.indexOf(maxRating)) return false;
+                    return true;
+                } else return true;
+            }
         }
     },
     data: {
@@ -470,6 +501,15 @@ const tv = {
                         }
                     });
 
+                    if(metadata.explicit && !tv.system.parental.ratingAllowed('explicit-audio')) {
+                        /* tv.ui.alerts.notify({
+                            title: 'Parental Controls',
+                            text: locales.get('tv.system.parental.explicitAudioBlocked')
+                        }); */
+                        $usbaudiovideo.pause();
+                        $usbaudiovideo.src = '/';
+                        metadata.title = 'Explicit Content Blocked';
+                    }
 
                     if(metadata.title) {
                         $usbaudiotitle.innerText = metadata.title;
@@ -707,7 +747,9 @@ const tv = {
                 this.queue.shift();
                 if(this.queue.length != 0) this.__show__();
                 else this.active = false;
-            }
+            },
+            // TO DO: notification center
+            notify: ({ title, text, appId, sourceLabel }) => {alert(text)}
         },
         settings: {
             open: false,
