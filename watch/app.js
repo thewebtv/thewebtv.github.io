@@ -275,9 +275,66 @@ const onbuttonpressedusbreader = ({ key, repeat }) => {
             document.querySelector('.usb-audio').style.display = 'none';
             document.querySelector('.usb-main').style.display = '';
             tv.usbdrive.section = 'browse';
-        } else if(key === 'ok') {
-            if($usbaudiovideo.paused) $usbaudiovideo.play();
-            else $usbaudiovideo.pause();
+        } else if(!tv.usbdrive.audioThumbSelected) {
+            if(key === 'ok') {
+                if(tv.usbdrive.audioSelectedIcon === 0) {
+                    if($usbaudiovideo.paused) $usbaudiovideo.play();
+                    else $usbaudiovideo.pause();
+                } else if(tv.usbdrive.audioSelectedIcon === -1) {
+                    if($usbaudiovideo.currentTime < 1.4) {
+                        // TO DO: m3u8 playlist support
+                    } else {
+                        $usbaudiovideo.currentTime = 0;
+                    }
+                }
+            } else if(key === 'up') {
+                tv.usbdrive.audioThumbSelected = true;
+                $usbaudiorwbutton.className = 'usb-audio-control';
+                $usbaudioplaybutton.className = 'usb-audio-control';
+                $usbaudioffbutton.className = 'usb-audio-control';
+                $usbaudiopositionthumb.className = 'usb-audio-timer usb-audio-timer-active';
+            } else if(key === 'left') {
+                if(tv.usbdrive.audioSelectedIcon === 0) {
+                    tv.usbdrive.audioSelectedIcon = -1;
+                    $usbaudiorwbutton.className = 'usb-audio-control usb-audio-control-active';
+                    $usbaudioplaybutton.className = 'usb-audio-control';
+                    $usbaudioffbutton.className = 'usb-audio-control';
+                    $usbaudiopositionthumb.className = 'usb-audio-timer';
+                } else if(tv.usbdrive.audioSelectedIcon === 1) {
+                    tv.usbdrive.audioSelectedIcon = 0;
+                    $usbaudiorwbutton.className = 'usb-audio-control';
+                    $usbaudioplaybutton.className = 'usb-audio-control usb-audio-control-active';
+                    $usbaudioffbutton.className = 'usb-audio-control';
+                    $usbaudiopositionthumb.className = 'usb-audio-timer';
+                }
+            } else if(key === 'right') {
+                if(tv.usbdrive.audioSelectedIcon === 0) {
+                    tv.usbdrive.audioSelectedIcon = 1;
+                    $usbaudiorwbutton.className = 'usb-audio-control';
+                    $usbaudioplaybutton.className = 'usb-audio-control';
+                    $usbaudioffbutton.className = 'usb-audio-control usb-audio-control-active';
+                    $usbaudiopositionthumb.className = 'usb-audio-timer';
+                } else if(tv.usbdrive.audioSelectedIcon === -1) {
+                    tv.usbdrive.audioSelectedIcon = 0;
+                    $usbaudiorwbutton.className = 'usb-audio-control';
+                    $usbaudioplaybutton.className = 'usb-audio-control usb-audio-control-active';
+                    $usbaudioffbutton.className = 'usb-audio-control';
+                    $usbaudiopositionthumb.className = 'usb-audio-timer';
+                }
+            }
+        } else if(key === 'down') {
+            tv.usbdrive.audioThumbSelected = false;
+            $usbaudiorwbutton.className = 'usb-audio-control';
+            $usbaudioplaybutton.className = 'usb-audio-control';
+            $usbaudioffbutton.className = 'usb-audio-control';
+            $usbaudiopositionthumb.className = 'usb-audio-timer';
+            [$usbaudiorwbutton,$usbaudioplaybutton,$usbaudioffbutton][tv.usbdrive.audioSelectedIcon+1].classList.add(
+                'usb-audio-control-active'
+            );
+        } else if(key === 'left') {
+            $usbaudiovideo.currentTime -= 5;
+        } else if(key === 'right') {
+            $usbaudiovideo.currentTime += 5;
         }
     } else if(tv.usbdrive.section === 'video') {
         if(key === 'exit') {
@@ -490,7 +547,8 @@ if(tv.onboarding.seen()) {
     if(!isNaN(localStorage.getItem('tv.live.channel')) && CHANNELS[tv.live.region][Number(localStorage.getItem('tv.live.channel'))]) {
         tv.live.channel = Number(localStorage.getItem('tv.live.channel'));
     }
-    tv.apps.load(tv.system.app, true);
+    // tv.apps.load(tv.system.app, true);
+    setTimeout(() => tv.apps.load('usb', 'USER\'S IPOD'), 1000);
 } else {
     tv.onboarding.start();
 }

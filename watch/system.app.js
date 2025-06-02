@@ -444,6 +444,7 @@ const tv = {
             $usbaudiorwbutton.className = 'usb-audio-control';
             $usbaudioplaybutton.className = 'usb-audio-control usb-audio-control-active';
             $usbaudioffbutton.className = 'usb-audio-control';
+            $usbaudiopositionthumb.className = 'usb-audio-timer';
             document.querySelector('.usb-main').style.display = 'none';
             document.querySelector('.usb-audio').style.display = 'flex';
             $usbaudiotitle.innerText = name;
@@ -451,13 +452,13 @@ const tv = {
             $usbaudioalbum.innerText = '';
             tv.usbdrive.section = 'buffering';
             tv.usbdrive.audioSelectedIcon = 0;
+            tv.usbdrive.audioThumbSelected = false;
             try {
                 const file = await tv.usbdrive.getFile(name);
                 const furl = tv.usbdrive.objectUrl = URL.createObjectURL(file);
                 $usbaudiovideo.src = furl;
                 $usbaudiovideo.play();
                 const buffer = await file.arrayBuffer();
-                const limit = 1024 * 1024 * 15; 
                 const uint8 = new Uint8Array(buffer);
                 let m4a;
                 try {
@@ -564,7 +565,8 @@ const tv = {
                 tv.usbdrive.renderFolder(tv.usbdrive.path);
             }
         },
-        audioSelectedIcon: 0
+        audioSelectedIcon: 0,
+        audioThumbSelected: false
     },
     home: {
         open: false,

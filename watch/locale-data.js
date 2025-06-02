@@ -18,6 +18,11 @@ locales.add('en', {
         onboarding: {
             welcome: 'Welcome',
             letsgo: 'Let\'s Go'
+        },
+        system: {
+            parental: {
+                explicitAudioBlocked: "Explicit audio playback has been blocked by parental controls."
+            }
         }
     }
 });
