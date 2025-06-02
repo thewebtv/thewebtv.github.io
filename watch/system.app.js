@@ -455,18 +455,30 @@ const tv = {
                         tv.usbdrive.imageObjectUrl = $usbaudioimage.src = metadata.imageURL;
                     }
                 } else if(uint8[0]===73&&uint8[1]===68&&uint8[2]===51&&uint8[3]===0x02) {
-                    // TODO: add support for ID3v2.0.0/ID3v2.2.0
+                    // TODO: add support for ID3v2.2.0
                 } else if(m4a) {
-                    // let metadata = ID3Parse.ParseM4A(uint8);
-
                     const metadata = {
                         title: m4a.getStringMetadata('\u00A9nam'),
                         artist: m4a.getStringMetadata('\u00A9ART'),
                         album: m4a.getStringMetadata('\u00A9alb'),
+                        explicit: false
                     };
+
+                    m4a.metadataBlock.children.forEach(k => {
+                        if(k.type === 'rtng') {
+                            if(k.data[k.data.length-1] === 1) metadata.explicit = true;
+                        }
+                    });
+
 
                     if(metadata.title) {
                         $usbaudiotitle.innerText = metadata.title;
+                        if(metadata.explicit) {
+                            const span = document.createElement('span');
+                            span.innerText = '\uD83C\uDD74';
+                            span.style.color = 'red';
+                            $usbaudiotitle.appendChild(span);
+                        }
                     }
                     if(metadata.artist) {
                         $usbaudioartist.innerText = metadata.artist;
