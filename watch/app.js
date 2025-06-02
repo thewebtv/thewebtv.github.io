@@ -547,8 +547,7 @@ if(tv.onboarding.seen()) {
     if(!isNaN(localStorage.getItem('tv.live.channel')) && CHANNELS[tv.live.region][Number(localStorage.getItem('tv.live.channel'))]) {
         tv.live.channel = Number(localStorage.getItem('tv.live.channel'));
     }
-    // tv.apps.load(tv.system.app, true);
-    setTimeout(() => tv.apps.load('usb', 'USER\'S IPOD'), 1000);
+    tv.apps.load(tv.system.app, true);
 } else {
     tv.onboarding.start();
 }
