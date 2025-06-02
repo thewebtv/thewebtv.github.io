@@ -414,6 +414,14 @@ html {
     justify-content: center;
 }
 
+.usb-audio-timer-active .usb-audio-timer-slider {
+    background-color: rgb(60, 129, 239);
+}
+
+.usb-audio-timer-active .usb-audio-timer-progress {
+    background-color: white;
+}
+
 .usb-audio-time, .usb-audio-duration {
     font-size: 22px;
     text-align: center;
