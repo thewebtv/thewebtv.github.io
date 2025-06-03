@@ -17,6 +17,8 @@ const tv = {
         app: 'live-tv',
         volume: 30,
         muted: false,
+        identifier: '',
+        version: '1.0.0-pvdr',
         registerVolume: () => {
             document.querySelectorAll('video').forEach(video => {
                 video.muted = tv.system.muted;
